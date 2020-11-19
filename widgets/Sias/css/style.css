@@ -1,0 +1,252 @@
+.jimu-widget-sias {
+	position: relative;
+	font-size: 12px;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+.jimu-widget-sias .contenedor {
+	border: solid 1px #d9dde0;
+	border-radius: 3px;
+	/* border-bottom: solid 1px #d9dde0; */
+	padding: 3px;
+	margin-bottom: 3px;
+}
+.jimu-widget-sias .oscurecido {
+	background-color: #efefef;
+}
+
+.jimu-widget-sias .analisis {
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 50px;
+	top: 103px;
+}
+
+.jimu-widget-sias .solicitud {
+	position: absolute;
+	left: 0;
+	right: 0;
+	/* top: 187px; */
+    top: 156px;
+	bottom: 32px;
+}
+
+.jimu-widget-sias .div-tabla-interferencia {
+	position: absolute;
+	/* display: none; */
+	left: 3px;
+	right: 3px;
+	top: 50px;
+	bottom: 3px;
+	background-color: #efefef;
+	overflow-y: scroll;
+}
+.jimu-widget-sias .div-tabla-interferencia table {
+	width: 100%;
+	border-collapse: collapse;
+}
+.jimu-widget-sias .div-tabla-interferencia tr {
+	height: 22px;
+	cursor: pointer;
+}
+.jimu-widget-sias .div-tabla-interferencia tr:hover {
+	background-color: #e1e1e1;
+}
+.jimu-widget-sias .div-tabla-interferencia .td-id {
+	width: 50px;
+}
+.jimu-widget-sias .div-tabla-interferencia .td-valor {
+	/* width: 100%; */
+}
+.jimu-widget-sias .div-tabla-interferencia .td-capa {
+	width: 100px;
+}
+
+
+.jimu-widget-sias .inspector-atributos {
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	top: 2px;
+	bottom: 35px;
+	padding: 3px;
+	overflow-y: scroll;
+}
+.jimu-widget-sias .botones-abajo {
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 27px;
+	bottom: 0;
+	padding: 0 5px;
+}
+.jimu-widget-sias .div-subtitulo {
+	position: relative;
+	width: 100%;
+	height: 18px;
+	padding: 2px 0px;
+}
+.jimu-widget-sias .div-template-picker {
+	position: relative;
+	width: 100%;
+	height: 55px;
+}
+.jimu-widget-sias .div-botones-opcion {
+	position: relative;
+	width: 100%;
+	height: 35px;
+}
+.jimu-widget-sias .templatePicker {
+	border: solid 0px #d9dde0;
+}
+
+.jimu-widget-sias .div-partes {
+	position: relative;
+	float: left;
+	width: 240px;
+	height: 28px;
+	text-align: center;
+	margin: 2px 0;
+    overflow: hidden;
+    margin-top: 3px;
+}
+
+.jimu-widget-sias .div-boton {
+	position: relative;
+	float: left;
+	width: 40px;
+	height: 100%;
+	text-align: center;
+	margin: 0 5px;
+	cursor: pointer;
+}
+.jimu-widget-sias .div-boton:hover {
+	background-color: #bcd8f4;
+}
+
+.jimu-widget-sias .div-boton-parte {
+	width: 28px;
+    height: 28px;
+	margin: 0;
+}
+.jimu-widget-sias .div-boton-agregar-parte {
+	width: 28px;
+    height: 28px;
+	margin: 3px 0;
+}
+
+.jimu-widget-sias .imagen {
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+.jimu-widget-sias .iconBotonEliminar {
+  background-image: url(../images/Eliminar.png);
+}
+/* .jimu-widget-sias .iconBotonAtributos {
+  background-image: url(../images/Atributos.png);
+} */
+.jimu-widget-sias .iconBotonVertices {
+  background-image: url(../images/EditarVertices.png);
+}
+.jimu-widget-sias .iconBotonFlecha {
+  background-image: url(../images/Flecha.png);
+}
+.jimu-widget-sias .iconBotonAgregarParte {
+  background-image: url(../images/AgregarParte.png);
+}
+.jimu-widget-sias .iconBotonBorrarParte {
+  background-image: url(../images/BorrarParte.png);
+}
+/* .jimu-widget-sias .iconBotonBorrar {
+  background-image: url(../images/Flecha.png);
+}  */
+.jimu-widget-sias .div-etiqueta {
+	float: left;
+	width: 80px;
+}
+.jimu-widget-sias .div-valor {
+	float: left;
+	width: 80px; 
+	text-align: right;
+	font-weight: bold;
+}
+.jimu-widget-sias .div-clear {
+	clear: left;
+}
+.jimu-widget-sias table {
+	width: 100%;
+}
+.jimu-widget-sias .atiAttachmentEditor {
+	border: solid 1px #d9dde0;
+	padding: 0 10px 10px 10px;
+}
+
+.jimu-widget-sias .herramienta-seleccionada {
+	background-color: #bcd8f4;
+}
+
+/* ================================================================================= */
+/* CSS para los botones */
+.jimu-widget-sias .jimu-btn {
+	font-size: 12px;
+	float: left;
+	padding: 0 7px;
+	height: 25px;
+	line-height: 25px;
+	margin: 0px;
+	min-width: 10px;
+	margin-right: 15px;
+}
+.jimu-widget-sias .jimu-btn2 {
+	float: right;
+	margin-right: 0px;
+}
+
+/* ================================================================================= */
+.jimu-widget-sias .dojoxGridContent {
+  width: 100px !important;
+}
+.jimu-widget-sias .dojoxGridRow {
+  border: 0;
+	width: 100%;
+}
+.jimu-widget-sias .dojoxGridMasterHeader {
+  height: 0 !important;
+}
+.jimu-widget-sias .grid .dojoxGridCell {
+  border: 0px solid #FFFFFF;
+}
+
+/* ================================================================================= */
+/* CONTROLA EL ANCHO DEL BOTON DE LOS DROP LIST DOJO */
+.claro .dijitTextBox {
+	height: 24px;
+	width: 100%;
+}
+.claro .dijitTextBox .dijitInputInner {
+	height: 20px;
+	font-size: inherit;
+}
+.claro .dijitTextBox .dijitInputField {
+	padding: 1px;
+}
+
+/* ================================================================================= */
+.jimu-widget-frame.jimu-container {
+  padding: 7px;
+}
+.esriAttributeInspector .atiTextAreaField {
+	height: 75px;
+	maxlength: 255;
+	font: inherit;
+}
+.esriAttributeInspector .atiLabel {
+	width: 175px;
+}
+
+.div-subtitulo {
+	font-weight: bold;
+}
+
