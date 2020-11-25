@@ -2,10 +2,15 @@
   <div class="contenedor" data-dojo-attach-point="dropZone">
 		<div class="div-subtitulo">Herramientas de edición:</div>
 		<div class="div-botones-opcion">
-            <div class="div-boton imagen iconBotonVertices" data-dojo-attach-point="EditarDiv"></div>
+			<button type="button" id="btn-draw" class="btn btn-outline-primary" data-dojo-attach-event="onclick:_onclickDraw">
+				<svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil-square" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+					<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
+					<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
+				</svg>
+			</button>
 		</div>
 	</div>
-	<div class="contenedor">
+	<!-- <div class="contenedor">
 		<div>
 			<div class="div-etiqueta">Área (m2):</div>
 			<div class="div-valor" data-dojo-attach-point="divArea"></div>
@@ -16,7 +21,7 @@
 			<div class="div-valor" data-dojo-attach-point="divPerimetro"></div>
 			<div class="div-clear"></div>
 		</div>
-	</div>
+	</div> -->
     <div class="contenedor" data-dojo-attach-point="">
 		<div class="div-subtitulo">Profesionales que gestionan SIA</div><br>
 		<table>
@@ -30,13 +35,7 @@
 				<tr>
 					<td>Solicitante</td>
 					<td>
-						<select class="form-control" style="margin-top: 5px;" name="" id="sel-sia-solicitante-inco">
-							<option value="1">Rodrigo Berrios </option>
-							<option value="2">Jorge Espinosa</option>
-							<option value="3">Claudio Alzugaray</option>
-							<option value="4">Carlos Carrasco</option>
-							<option value="5">Juan Perez</option>
-						</select>
+						<select class="form-control" style="margin-top: 5px;" name="" id="sel-sia-solicitante-inco"></select>
 					</td>
 				</tr>
 			</tbody>
@@ -50,7 +49,8 @@
 				<tr>
 					<td>Indica EPC</td>
 					<td>
-						<select class="form-control" name="" id="">
+						<select class="form-control" name="" id="sel-sia-epc">
+							<option value="-1">[Seleccione]</option>
 							<option value="1">EPC 1</option>
 							<option value="2">EPC 2</option>
 							<option value="3">EPC 3</option>
@@ -61,19 +61,19 @@
 				<tr>
 					<td>Fecha inicio solicitud</td>
 					<td>
-						<input class="form-control" style="margin-top: 5px;" type="datetime-local" name="" id="">
+						<input class="form-control" style="margin-top: 5px;" type="datetime-local" name="" id="txt-sia-fecha-solicitud">
 					</td>
 				</tr>
 				<tr>
 					<td>ID SIA</td>
 					<td>
-						<input class="form-control" style="margin-top: 5px;" type="text" name="" id="">
+						<input class="form-control" style="margin-top: 5px;" type="text" name="" id="txt-sia-id-sia">
 					</td>
 				</tr>
 				<tr>
 					<td>Área solicitada</td>
 					<td>
-						<textarea class="form-control" style="margin-top: 5px;" name="" id="" cols="30" rows="2"></textarea>
+						<textarea class="form-control" style="margin-top: 5px;" name="" id="txta-sia-area-sol" cols="30" rows="2"></textarea>
 					</td>
 				</tr>
 				<tr>
@@ -102,5 +102,5 @@
 			</tbody>
 		</table>
 	</div>
-  <input type="button" class="map-id btn btn-primary" value="Pruebaaaaa">
+  <input type="button" class="map-id btn btn-primary" value="Enviar" data-dojo-attach-event="onclick:_onclickEnviar">
 </div>

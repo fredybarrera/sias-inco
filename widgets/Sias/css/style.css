@@ -148,7 +148,7 @@
   background-image: url(../images/Atributos.png);
 } */
 .jimu-widget-sias .iconBotonVertices {
-  background-image: url(../images/EditarVertices.png);
+  /* background-image: url(../images/EditarVertices.png); */
 }
 .jimu-widget-sias .iconBotonFlecha {
   background-image: url(../images/Flecha.png);
@@ -250,3 +250,7 @@
 	font-weight: bold;
 }
 
+div#_34_panel.jimu-panel.jimu-on-screen-widget-panel.jimu-main-background {
+	width: 450px !important;
+    height: 650px !important;
+}
