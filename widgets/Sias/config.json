@@ -1,13 +1,11 @@
 {
-  "sias": {
-    "urlBase": "https://gis.ingenieria.esri.cl/serversp/rest/services/AMSA_INCO/INCO_SIAS_WGS84/FeatureServer/",
-    "urlBase_": "https://gis.ingenieria.esri.cl/serversp/rest/services/AMSA_INCO/INCO_SIAS/FeatureServer/",
-    "urlBase__": "https://gis.ingenieria.esri.cl/serversp/rest/services/AMSA_INCO/INCO_SIAS_WMAS/FeatureServer/",
-    "urlKeySias": "0",
-    "urlKeyNotasDeGestion": "1",
-    "urlKeyEstadoGestion": "2",
-    "urlKeyProfesionales": "3",
-    "urlKeySolicitante": "4",
-    "geometryServiceUrl": "https://sampleserver1.arcgisonline.com/arcgis/rest/services/Geometry/GeometryServer"
-  }
+  "urlBase": "https://gis.ingenieria.esri.cl/serversp/rest/services/AMSA_INCO/INCO_SIAS_WGS84/FeatureServer/",
+  "urlBase_": "https://gis.ingenieria.esri.cl/serversp/rest/services/AMSA_INCO/INCO_SIAS/FeatureServer/",
+  "urlBase__": "https://gis.ingenieria.esri.cl/serversp/rest/services/AMSA_INCO/INCO_SIAS_WMAS/FeatureServer/",
+  "urlKeySias": "0",
+  "urlKeyNotasDeGestion": "1",
+  "urlKeyEstadoGestion": "2",
+  "urlKeyProfesionales": "3",
+  "urlKeySolicitante": "4",
+  "geometryServiceUrl": "https://sampleserver1.arcgisonline.com/arcgis/rest/services/Geometry/GeometryServer"
 }

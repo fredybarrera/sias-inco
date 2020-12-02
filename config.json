@@ -111,9 +111,10 @@
         },
         "placeholderIndex": 1,
         "id": "_35",
+        "name": "Notas de gestión",
         "version": "2.16",
         "closeable": true,
-        "uri": ""
+        "uri": "widgets/NotasGestion/Widget"
       },
       {
         "position": {
@@ -121,7 +122,7 @@
           "top": 45,
           "relativeTo": "map"
         },
-        "placeholderIndex": 2,
+        "placeholderIndex": 1,
         "id": "_36"
       },
       {
@@ -130,7 +131,7 @@
           "top": 45,
           "relativeTo": "map"
         },
-        "placeholderIndex": 3,
+        "placeholderIndex": 2,
         "id": "_37"
       },
       {
@@ -139,7 +140,7 @@
           "top": 45,
           "relativeTo": "map"
         },
-        "placeholderIndex": 4,
+        "placeholderIndex": 3,
         "id": "_38"
       },
       {

@@ -62,11 +62,12 @@ function(
     name: 'Sias',
     sias: null,
     geometryService: null,
+    baseClass: 'jimu-widget-report',
 
     startup: function(){
       var map = this.map;
       var message = this.showMessage
-      var config = this.config.sias
+      var config = this.config
       var getRequest = this.getRequest
 
       var gLayer = new GraphicsLayer({'id': 'gLayerGraphic'});
@@ -144,7 +145,7 @@ function(
       this.getData().then(
         lang.hitch(this, function(data) { 
           strData = JSON.stringify([data])
-          this.postRequest(this.config.sias.urlBase + this.config.sias.urlKeySias + '/applyEdits', strData).then(
+          this.postRequest(this.config.urlBase + this.config.urlKeySias + '/applyEdits', strData).then(
             lang.hitch(this, function(objRes) { 
               console.log('objRes: ', objRes)
               if (objRes.addResults[0].success === true)
