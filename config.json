@@ -75,7 +75,9 @@
         },
         "version": "2.16",
         "id": "widgets_Search_Widget_32",
-        "name": "Search"
+        "name": "Search",
+        "config": "configs/Search/config_widgets_Search_Widget_32.json",
+        "visible": false
       },
       {
         "uri": "widgets/Coordinate/Widget",
@@ -108,7 +110,10 @@
           "relativeTo": "map"
         },
         "placeholderIndex": 1,
-        "id": "_35"
+        "id": "_35",
+        "version": "2.16",
+        "closeable": true,
+        "uri": ""
       },
       {
         "position": {

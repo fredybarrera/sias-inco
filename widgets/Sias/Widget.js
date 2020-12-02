@@ -249,7 +249,7 @@ function(
         data['geometry'] = union.toJson()
       }
 
-      // deferred.reject('Jajajajajjaja')
+      // deferred.reject('acaaaaaa')
 
       data['attributes'] = attributes;
       deferred.resolve(data);
