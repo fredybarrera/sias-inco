@@ -123,7 +123,12 @@
           "relativeTo": "map"
         },
         "placeholderIndex": 1,
-        "id": "_36"
+        "id": "_36",
+        "name": "AddData",
+        "version": "2.16",
+        "closeable": true,
+        "uri": "widgets/AddData/Widget",
+        "config": "configs/AddData/config__36.json"
       },
       {
         "position": {
@@ -131,7 +136,7 @@
           "top": 45,
           "relativeTo": "map"
         },
-        "placeholderIndex": 2,
+        "placeholderIndex": 1,
         "id": "_37"
       },
       {
@@ -140,7 +145,7 @@
           "top": 45,
           "relativeTo": "map"
         },
-        "placeholderIndex": 3,
+        "placeholderIndex": 2,
         "id": "_38"
       },
       {

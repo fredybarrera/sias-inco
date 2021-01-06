@@ -1,99 +1,136 @@
 <div class="jimu-widget-notas-gestion container">
-  <div class="row">
-    <div id="div-info-notas-gestion" class="col">
-      <table class="table table-hover table-sm">
-        <tbody>
-          <tr>
-            <td>Indica la SIA a gestionar</td>
-            <td>
-              <select class="form-control" name="" id="sel-nota-gestion-sia"></select>
-            </td>
-          </tr>
-          <tr>
-            <td>Fecha de ingreso de la nota</td>
-            <td>
-              <input class="form-control" style="margin-top: 5px;" type="datetime-local" name="" id="txt-nota-gestion-fecha">
-            </td>
-          </tr>
-          <tr>
-            <td>Indica estado actual de gestión</td>
-            <td>
-              <select class="form-control" name="" id="sel-nota-gestion-estado-sia"></select>
-            </td>
-          </tr>
-          <tr>
-            <td>Nota de gestión</td>
-            <td>
-              <textarea class="form-control" style="margin-top: 5px;" name="" id="txta-nota-gestion-texto" cols="30" rows="2"></textarea>
-            </td>
-          </tr>
-          <tr>
-            <td>Nota registrada por</td>
-            <td>
-              <select class="form-control" name="" id="sel-nota-gestion-autor"></select>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <input type="button" class="map-id btn btn-primary btn-sm" value="Enviar" data-dojo-attach-event="onclick:_onclickEnviar">
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+      <a class="nav-item nav-link active" id="nueva-ng-tab" data-toggle="tab" href="#nueva-ng" role="tab" aria-controls="nueva-ng" aria-selected="true">Nota de gestión</a>
+      <a class="nav-item nav-link" id="detalle-sia-tab" data-toggle="tab" href="#detalle-sia" role="tab" aria-controls="detalle-sia" aria-selected="false">Detalle SIA</a>
+      <a class="nav-item nav-link" id="historial-ng-tab" data-toggle="tab" href="#historial-ng" role="tab" aria-controls="historial-ng" aria-selected="false">Historial</a>
     </div>
-    <div id="div-detalle-sia-seleccionada" class="col">
-      <div class="div-subtitulo">Detalle de la SIA seleccionada</div><br>
-      <table class="table table-bordered table-sm">
-        <tbody>
-          <tr>
-            <td>EPC</td>
-            <td>ID SIA</td>
-            <td>SIA Origen</td>
-            <td>Fecha de solicitud</td>
-          </tr>
-          <tr>
-            <td>
-              <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-detalle-epc" readonly="readonly">
-            </td>
-            <td>
-              <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-detalle-id-sia" readonly="readonly">
-            </td>
-            <td>
-              <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-detalle-sia-origen" readonly="readonly">
-            </td>
-            <td>
-              <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-detalle-fecha-solicitud" readonly="readonly">
-            </td>
-          </tr>
-          <tr>
-            <td colspan="4">Area solicitada</td>
-          </tr>
-          <tr>
-            <td colspan="4">
-              <textarea class="form-control" style="margin-top: 5px;" name="" id="txta-nota-gestion-detalle-texto" cols="30" rows="2" readonly="readonly"></textarea>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2">SIA registrada por</td>
-            <td colspan="2">SIA solicitada por</td>
-          </tr>
-          <tr>
-            <td colspan="2">
-              <input class="form-control" style="margin-top: 5px;" name="" id="nota-gestion-detalle-registrada" readonly="readonly">
-            </td>
-            <td colspan="2">
-              <input class="form-control" style="margin-top: 5px;" name="" id="nota-gestion-detalle-solicitada" readonly="readonly">
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  </nav>
+  <div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade show active" id="nueva-ng" role="tabpanel" aria-labelledby="nueva-ng-tab">
+      <div class="div-subtitulo">Registrar nueva nota de gestión</div>
+      <div id="div-notas-gestion" class="col">
+        <table class="table table-hover table-sm">
+          <tbody>
+            <tr>
+              <td>Indica la SIA a gestionar</td>
+              <td>
+                <select class="form-control" name="" id="sel-nota-gestion-sia"></select>
+              </td>
+            </tr>
+            <tr>
+              <td>Fecha de ingreso de la nota</td>
+              <td>
+                <input class="form-control" style="margin-top: 5px;" type="datetime-local" name="" id="txt-nota-gestion-fecha">
+              </td>
+            </tr>
+            <tr>
+              <td>Indica estado actual de gestión</td>
+              <td>
+                <select class="form-control" name="" id="sel-nota-gestion-estado-sia"></select>
+              </td>
+            </tr>
+            <tr>
+              <td>Nota de gestión</td>
+              <td>
+                <textarea class="form-control" style="margin-top: 5px;" name="" id="txta-nota-gestion-texto" cols="30" rows="2"></textarea>
+              </td>
+            </tr>
+            <tr>
+              <td>Nota registrada por</td>
+              <td>
+                <select class="form-control" name="" id="sel-nota-gestion-autor"></select>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <input type="button" class="map-id btn btn-primary btn-sm" value="Registrar" data-dojo-attach-event="onclick:_onclickEnviar">
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-  <div class="row">
-    <div id="div-notas-registradas" class="col">
-      <div class="div-subtitulo">Notas registradas a la fecha</div><br>
-    </div>
-  </div>
+    <div class="tab-pane fade" id="detalle-sia" role="tabpanel" aria-labelledby="detalle-sia-tab">
+      <div class="div-subtitulo">Detalle de la SIA seleccionada</div>
+      <div id="div-detalle-sia-seleccionada" class="col">
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr>
+              <td>ID SIA GRAL</td>
+              <td>ID SIA Local</td>
+              <td>SIA Origen</td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-control" style="margin-top: 5px;"  type="text" name="" id="nota-gestion-id-sia-gral" readonly="readonly">
+              </td>
+              <td>
+                <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-detalle-id-sia" readonly="readonly">
+              </td>
+              <td>
+                <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-detalle-sia-origen" readonly="readonly">
+              </td>
+            </tr>
+            <tr>
+              <td>EPC</td>
+              <td>Fecha de solicitud</td>
+              <td>Estado gestión</td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-detalle-epc" readonly="readonly">
+              </td>
+              <td>
+                <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-detalle-fecha-solicitud" readonly="readonly">
+              </td>
+              <td>
+                <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-estado-gestion" readonly="readonly">
+              </td>
+            </tr>
+            <tr>
+              <td>SIA registrada por</td>
+              <td>SIA solicitada por</td>
+              <td>Area m2</td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-detalle-registrada" readonly="readonly">
+              </td>
+              <td>
+                <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-detalle-solicitada" readonly="readonly">
+              </td>
+              <td>
+                <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-m2" readonly="readonly">
+                <input class="form-control" style="margin-top: 5px;" type="hidden" name="" id="nota-gestion-detalle-objectid" readonly="readonly">
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3">Area solicitada</td>
+            </tr>
+            <tr>
+              <td colspan="3">
+                <textarea class="form-control" style="margin-top: 5px;" name="" id="txta-nota-gestion-detalle-texto" cols="30" rows="2" readonly="readonly"></textarea>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3">Comentario</td>
+            </tr>
+            <tr>
+              <td colspan="3">
+                <textarea class="form-control" style="margin-top: 5px;" name="" id="txta-nota-gestion-comentario-texto" cols="30" rows="2" readonly="readonly"></textarea>
 
-  
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="historial-ng" role="tabpanel" aria-labelledby="historial-ng-tab">
+      <div class="div-subtitulo">Notas registradas a la fecha</div>
+      <div id="div-notas-registradas" class="col">
+        
+      </div>
+    </div>
+  </div>
 </div>
