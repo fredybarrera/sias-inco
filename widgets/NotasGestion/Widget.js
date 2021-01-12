@@ -82,7 +82,7 @@ function(
       var html_infotemplate = this.getInfotemplate()
 
       // Obtengo las notas de gestión registradas
-      var query = '/query?outFields=SIAs_Areas_SIA_ID_Gral&returnGeometry=false&where=1%3D1&f=pjson';
+      var query = '/query?outFields=SIAs_Areas_SIA_ID_Gral&orderByFields=SIAs_Areas_SIA_ID_Gral&returnGeometry=false&where=1%3D1&f=pjson';
       getRequest(config.urlBase + config.urlKeySias + query).then(
         lang.hitch(this, function(objRes) { 
           if(objRes.features.length > 0)
@@ -161,7 +161,7 @@ function(
               arrayUtils.forEach(objRes.features, function(f) {
                 var d = new Date(f.attributes.Fecha_Nota)
                 // var options = { year: '2-digit', month: '2-digit', day: '2-digit' };
-                var options = {  dateStyle: 'medium', timeStyle: 'medium' };
+                var options = {  dateStyle: 'medium' };
                 var datetime = d.toLocaleString("es-CL", options);
                 html += '<tr>';
                 html += '<td>' + f.attributes.SIA_ID_LOCAL + '</td>';
@@ -193,8 +193,10 @@ function(
               let sr = objRes.spatialReference
 
               var d = new Date(data.Dat_SIAs_Fecha_Solicitud)
-              var options = {  dateStyle: 'medium', timeStyle: 'medium' };
+              var options = {  dateStyle: 'medium' };
               var datetime = d.toLocaleString("es-CL", options);
+
+              console.log('datetime: ', datetime);
 
               $("#nota-gestion-detalle-epc").val(data.Dat_SIAs_SIA_EPC);
               $("#nota-gestion-detalle-id-sia").val(data.Dat_SIAs_SIA_ID_LOCAL);
@@ -236,7 +238,7 @@ function(
               var graphic = new Graphic(polygon, sfs, attr, infoTemplate);
               gLayer.add(graphic);
               point = new Point(latLon[0], latLon[1]);
-							map.centerAt(point);
+							map.centerAndZoom(point, 16);
             }
           }),
           function(objErr) {
@@ -325,7 +327,7 @@ function(
 
       if (fechaSolicitud == '')
       {
-        deferred.reject('Debe seleccionar una fecha de solicitud')
+        deferred.reject('Debe indicar fecha de la gestión')
       } else {
         attributes['Fecha_Nota'] = datetime;
       }

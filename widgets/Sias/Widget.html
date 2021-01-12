@@ -2,7 +2,7 @@
   <div class="contenedor" data-dojo-attach-point="dropZone">
 		<div class="div-subtitulo">Herramientas de edición:</div>
 		<div class="div-botones-opcion">
-			<button type="button" id="btn-draw" class="btn btn-outline-primary" data-dojo-attach-event="onclick:_onclickDraw">
+			<button type="button" id="btn-draw" class="btn btn-outline-primary" data-dojo-attach-event="onclick:_onclickDraw" title="dibujar">
 				<svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil-square" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 					<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"></path>
 					<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
@@ -10,18 +10,6 @@
 			</button>
 		</div>
 	</div>
-	<!-- <div class="contenedor">
-		<div>
-			<div class="div-etiqueta">Área (m2):</div>
-			<div class="div-valor" data-dojo-attach-point="divArea"></div>
-			<div class="div-clear"></div>
-		</div>
-		<div>
-			<div class="div-etiqueta">Perímetro (m):</div>
-			<div class="div-valor" data-dojo-attach-point="divPerimetro"></div>
-			<div class="div-clear"></div>
-		</div>
-	</div> -->
     <div class="contenedor" data-dojo-attach-point="">
 		<div class="div-subtitulo">Profesionales que gestionan SIA</div><br>
 		<table>
@@ -73,7 +61,7 @@
 				<tr>
 					<td>Área solicitada</td>
 					<td>
-						<textarea class="form-control" style="margin-top: 5px;" name="" id="txta-sia-area-sol" cols="30" rows="2"></textarea>
+						<textarea class="form-control" style="margin-top: 5px;" name="" id="txta-sia-area-sol" cols="30" rows="1"></textarea>
 					</td>
 				</tr>
 				<tr>
@@ -91,12 +79,7 @@
 				<tr>
 					<td>SIA de Origen</td>
 					<td>
-						<select class="form-control" name="" id="">
-							<option value="1">EPC 1-SIA 1</option>
-							<option value="2">EPC 2-SIA 2</option>
-							<option value="3">EPC 3-SIA 19</option>
-							<option value="4">EPC 3-SIA 22</option>
-						</select>
+						<select class="form-control" name="" id="sel-nuevasia-sia-origen"></select>
 					</td>
 				</tr>
 			</tbody>

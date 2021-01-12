@@ -21,7 +21,7 @@
       "mainBackgroundColor": null
     }
   },
-  "portalUrl": "http://esricldemo.maps.arcgis.com",
+  "portalUrl": "https://esricldemo.maps.arcgis.com",
   "appId": "",
   "authorizedCrossOriginDomains": [
     "mapsrv.ingenieria.esri.cl",
@@ -34,7 +34,7 @@
     "smtp.ingenieria.esri.cl",
     "ide.minagri.gob.cl"
   ],
-  "title": "SIAs INCO",
+  "title": "Ingresar nueva SIA",
   "subtitle": "with Web AppBuilder for ArcGIS",
   "keepAppState": true,
   "logo": "images/app-logo.png",
@@ -98,7 +98,7 @@
         },
         "placeholderIndex": 1,
         "id": "_34",
-        "name": "Sias",
+        "name": "Ingresar nueva SIA",
         "version": "2.16",
         "closeable": true,
         "uri": "widgets/Sias/Widget"
@@ -137,7 +137,12 @@
           "relativeTo": "map"
         },
         "placeholderIndex": 1,
-        "id": "_37"
+        "id": "_37",
+        "name": "BasemapGallery",
+        "version": "2.16",
+        "closeable": true,
+        "uri": "widgets/BasemapGallery/Widget",
+        "config": "configs/BasemapGallery/config__37.json"
       },
       {
         "position": {
@@ -145,7 +150,7 @@
           "top": 45,
           "relativeTo": "map"
         },
-        "placeholderIndex": 2,
+        "placeholderIndex": 1,
         "id": "_38"
       },
       {
@@ -266,7 +271,7 @@
       }
     },
     "id": "map",
-    "portalUrl": "http://esricldemo.maps.arcgis.com/"
+    "portalUrl": "https://esricldemo.maps.arcgis.com/"
   },
   "widgetPool": {
     "panel": {
@@ -314,7 +319,7 @@
   "isWebTier": false,
   "httpProxy": {
     "useProxy": true,
-    "url": "/proxy.js"
+    "url": "https://spltwin256:3344/proxy.js"
   },
   "dataSource": {
     "dataSources": {},

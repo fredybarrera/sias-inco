@@ -1,9 +1,14 @@
+
+div#_34_panel.jimu-panel.jimu-on-screen-widget-panel.jimu-main-background {
+	min-width: 450px !important;
+    min-height: 650px !important;
+}
 .jimu-widget-sias {
 	position: relative;
 	font-size: 12px;
 	width: 100%;
 	height: 100%;
-	overflow: hidden;
+	/* overflow: hidden; */
 }
 .jimu-widget-sias .contenedor {
 	border: solid 1px #d9dde0;
@@ -94,10 +99,14 @@
 	height: 55px;
 }
 .jimu-widget-sias .div-botones-opcion {
-	position: relative;
-	width: 100%;
-	height: 35px;
+	/* position: absolute; */
+    /* width: 100%; */
+    /* height: 35px; */
+    /* float: right; */
+    /* top: 10px; */
+    /* right: 13px; */
 }
+
 .jimu-widget-sias .templatePicker {
 	border: solid 0px #d9dde0;
 }
@@ -248,9 +257,7 @@
 
 .div-subtitulo {
 	font-weight: bold;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
-div#_34_panel.jimu-panel.jimu-on-screen-widget-panel.jimu-main-background {
-	width: 450px !important;
-    height: 650px !important;
-}

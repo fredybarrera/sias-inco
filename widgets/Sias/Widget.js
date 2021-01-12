@@ -59,7 +59,7 @@ function(
   geometryEngine,
   $){
   return declare(BaseWidget, {
-    name: 'Sias',
+    name: 'Ingresar nueva SIA',
     sias: null,
     geometryService: null,
     baseClass: 'jimu-widget-report',
@@ -103,7 +103,7 @@ function(
 			}));
 
       // Obtengo los profesionales inco
-      var query = '/query?outFields=*&returnGeometry=true&where=1%3D1&f=pjson'
+      var query = '/query?outFields=*&returnGeometry=true&where=1%3D1&orderByFields=Apellidos&f=pjson'
       getRequest(config.urlBase + config.urlKeyProfesionales + query).then(
         lang.hitch(this, function(objRes) { 
           if(objRes.features.length > 0)
@@ -121,14 +121,14 @@ function(
       )
 
       // Obtengo los solicitantes inco
-      var query = '/query?outFields=*&returnGeometry=true&where=1%3D1&f=pjson'
+      var query = '/query?outFields=*&returnGeometry=true&where=1%3D1&orderByFields=Apellidos&f=pjson'
       getRequest(config.urlBase + config.urlKeySolicitante + query).then(
         lang.hitch(this, function(objRes) { 
           if(objRes.features.length > 0)
           {
             var html = '<option value="-1">[Seleccione]</option>';
             arrayUtils.forEach(objRes.features, function(f) {
-              html += '<option value="'+ f.attributes.ID_Solicitante +'">'+ f.attributes.Nombre_apellido +'</option>'
+              html += '<option value="'+ f.attributes.ID_Solicitante +'">[' + f.attributes.Empresa + '] ' + f.attributes.Apellidos + ', ' + f.attributes.Nombres + '</option>'
             }, this);
             $('#sel-sia-solicitante-inco').html(html)
           }
@@ -137,6 +137,26 @@ function(
           console.log('request failed', objErr)
         }
       )
+
+      //Obtengo las sias de origen
+      var query = '/query?outFields=Dat_SIAs_SIAIDGRAL2&returnGeometry=false&where=1%3D1&orderByFields=Dat_SIAs_SIAIDGRAL2&f=pjson'
+      getRequest(config.urlBase + config.urlKeySias + query).then(
+        lang.hitch(this, function(objRes) { 
+          if(objRes.features.length > 0)
+          {
+            var html = '<option value=""></option>';
+            arrayUtils.forEach(objRes.features, function(f) {
+              html += '<option value="'+ f.attributes.Dat_SIAs_SIAIDGRAL2 +'">' + f.attributes.Dat_SIAs_SIAIDGRAL2 + '</option>'
+            }, this);
+            $('#sel-nuevasia-sia-origen').html(html)
+          }
+        }),
+        function(objErr) {
+          console.log('request failed', objErr)
+        }
+      )
+
+      
     },
 
     _onclickEnviar: function () {
@@ -221,7 +241,8 @@ function(
       {
         deferred.reject('Debe ingresar un ID SIA')
       } else {
-        attributes['Dat_SIAs_Id_Sistema'] = idSia
+        attributes['Dat_SIAs_SIAIDGRAL2'] = idSia
+        attributes['SIAs_Areas_SIA_ID_Gral'] = idSia
       }
 
       //Valido que ingrese un area solicitada
@@ -232,8 +253,6 @@ function(
       } else {
         attributes['Dat_SIAs_Area_Solicitada'] = areaSol
       }
-
-
 
       // Valido que haya al menos una geometría
       var geom = []
@@ -249,8 +268,6 @@ function(
         var union = geometryEngine.union(geom);
         data['geometry'] = union.toJson()
       }
-
-      // deferred.reject('acaaaaaa')
 
       data['attributes'] = attributes;
       deferred.resolve(data);
