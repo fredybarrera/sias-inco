@@ -76,8 +76,7 @@
         "version": "2.16",
         "id": "widgets_Search_Widget_32",
         "name": "Search",
-        "config": "configs/Search/config_widgets_Search_Widget_32.json",
-        "visible": false
+        "config": "configs/Search/config_widgets_Search_Widget_32.json"
       },
       {
         "uri": "widgets/Coordinate/Widget",

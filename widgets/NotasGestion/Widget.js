@@ -181,7 +181,6 @@ function(
             console.log('request failed', objErr)
           }
         );
-
         
         var query = '/query?outFields=*&returnGeometry=true&where=SIAs_Areas_SIA_ID_Gral=\'' + id_sia + '\'&f=pjson'
         getRequest(config.urlBase + config.urlKeySias + query).then(
@@ -198,18 +197,16 @@ function(
 
               console.log('datetime: ', datetime);
 
-              $("#nota-gestion-detalle-epc").val(data.Dat_SIAs_SIA_EPC);
               $("#nota-gestion-detalle-id-sia").val(data.Dat_SIAs_SIA_ID_LOCAL);
-              $("#nota-gestion-detalle-sia-origen").val(data.Dat_SIAs_SIA_Origen);
+              $("#nota-gestion-detalle-SIA_IDE_Etiq").val(data.Dat_SIAs_SIA_IDE_Etiq);
               $("#nota-gestion-detalle-fecha-solicitud").val(datetime);
-              $("#txta-nota-gestion-detalle-texto").text(data.Dat_SIAs_Area_Solicitada);
-              $("#txta-nota-gestion-comentario-texto").text(data.Dat_SIAs_Comentario);
-              $("#nota-gestion-estado-gestion").val(data.Dat_SIAs_Estados_Gestion);
+              $("#nota-gestion-detalle-texto").val(data.Dat_SIAs_Area_Solicitada);
               $("#nota-gestion-detalle-registrada").val(data.Resgistrado_por);
               $("#nota-gestion-detalle-solicitada").val(data.ID_Solicitante);
               $("#nota-gestion-m2").val(data.SIAs_Areas_Area_m2);
               $("#nota-gestion-id-sia-gral").val(data.SIAs_Areas_SIA_ID_Gral);
               $("#nota-gestion-detalle-objectid").val(data.OBJECTID);
+
 
               var sfs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
                 new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
@@ -245,7 +242,27 @@ function(
             console.log('request failed', objErr)
           }
         )
-       
+
+        //Obtengo la ultima gestion de la sia
+        var query = '/query?outFields=*&orderByFields=Fecha_Nota+desc&where=SIAIDGRAL2=\'' + id_sia + '\'&resultOffset=0&resultRecordCount=1&f=pjson';
+        getRequest(config.urlBase + config.urlKeyNotasDeGestion + query).then(
+          lang.hitch(this, function(objRes) { 
+            if(objRes.features.length > 0)
+            {
+              var data = objRes.features[0].attributes
+              var d = new Date(data.Fecha_Nota)
+              var options = {  dateStyle: 'medium' };
+              var datetime = d.toLocaleString("es-CL", options);
+
+              $("#detalle-sia-historial-fecha-gestion").text(datetime);
+              $("#detalle-sia-historial-estado-gestion").text(data.Estado_gestion);
+              $("#detalle-sia-historial-detalle-gestion").text(data.Comentario);
+            }
+          }),
+          function(objErr) {
+            console.log('request failed', objErr)
+          }
+        )
       });
     },
 
@@ -258,6 +275,7 @@ function(
           strData = JSON.stringify([data])
           console.log('data: ', data);
           var objectid = $('#nota-gestion-detalle-objectid').val();
+          var sia_gral = $('#sel-nota-gestion-sia option:selected').val();
           var estadoGestion = data.attributes.Estado_gestion
           this.postRequest(this.config.urlBase + this.config.urlKeyNotasDeGestion + '/applyEdits', strData, 'adds').then(
             lang.hitch(this, function(objRes) { 
@@ -278,6 +296,13 @@ function(
                     if (objRes.updateResults[0].success === true)
                     {
                       showMessage('Nota de gestión ingresada exitosamente');
+                      //Reseteo el formunlario                      
+                      this.resetForm();
+                      //Activo el select con la SIA gestinada para que cargue el historial.
+                      $("#sel-nota-gestion-sia").val("-1").change();
+                      $("#sel-nota-gestion-sia").val(sia_gral).change();
+                      //Activo la pestaña historial
+                      $("#historial-ng-tab").click();
                       deferred.resolve(objRes);
                     } else {
                       msg = objRes.addResults[0].error.description
@@ -306,6 +331,12 @@ function(
       );
     },
 
+    resetForm: function () {
+      $(':input').not(':button, :submit, :reset, :checkbox, :radio').val("");
+      $("#sel-nota-gestion-sia").val("-1");
+      $("#sel-nota-gestion-estado-sia").val("-1");
+      $("#sel-nota-gestion-autor").val("-1");
+    },
 
     getData: function () {
       var deferred = new Deferred();
@@ -361,9 +392,13 @@ function(
 
       var id_sia_gral = $('#nota-gestion-detalle-id-sia').val()
       attributes['SIA_ID_LOCAL'] = id_sia_gral;
+      var SIA_IDE_Etiq = $('#nota-gestion-detalle-SIA_IDE_Etiq').val()
+      attributes['SIA_IDE_Etiq'] = SIA_IDE_Etiq;
 
 
       data['attributes'] = attributes;
+      console.log('data: ', data);
+      
       deferred.resolve(data);
 			return deferred.promise;
     },
@@ -472,6 +507,8 @@ function(
 
     onClose: function () {
       console.log('onClose');
+      var gLayer = this.map.getLayer("gLayerGraphicNotas");
+			gLayer.clear();
     },
 
     onMinimize: function () {

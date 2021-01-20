@@ -44,7 +44,7 @@
             </tr>
             <tr>
               <td colspan="2">
-                <input type="button" class="map-id btn btn-primary btn-sm" value="Registrar" data-dojo-attach-event="onclick:_onclickEnviar">
+                <input type="button" class="btn btn-primary btn-sm" value="Registrar" data-dojo-attach-event="onclick:_onclickEnviar">
               </td>
             </tr>
           </tbody>
@@ -57,70 +57,54 @@
         <table class="table table-bordered table-sm">
           <tbody>
             <tr>
-              <td>ID SIA GRAL</td>
-              <td>ID SIA Local</td>
-              <td>SIA Origen</td>
+              <td><input class="form-control" style="margin-top: 5px;"  type="text" name="" id="nota-gestion-id-sia-gral" readonly="readonly"></td>
+              <td><input class="form-control" style="margin-top: 5px;"  type="text" name="" id="nota-gestion-detalle-texto" readonly="readonly"></td>
             </tr>
             <tr>
-              <td>
-                <input class="form-control" style="margin-top: 5px;"  type="text" name="" id="nota-gestion-id-sia-gral" readonly="readonly">
-              </td>
-              <td>
-                <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-detalle-id-sia" readonly="readonly">
-              </td>
-              <td>
-                <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-detalle-sia-origen" readonly="readonly">
-              </td>
-            </tr>
-            <tr>
-              <td>EPC</td>
-              <td>Fecha de solicitud</td>
-              <td>Estado gestión</td>
-            </tr>
-            <tr>
-              <td>
-                <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-detalle-epc" readonly="readonly">
-              </td>
-              <td>
-                <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-detalle-fecha-solicitud" readonly="readonly">
-              </td>
-              <td>
-                <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-estado-gestion" readonly="readonly">
-              </td>
-            </tr>
-            <tr>
-              <td>SIA registrada por</td>
-              <td>SIA solicitada por</td>
-              <td>Area m2</td>
-            </tr>
-            <tr>
+              <td style="vertical-align: middle;">Registrada por</td>
               <td>
                 <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-detalle-registrada" readonly="readonly">
               </td>
+            </tr>
+            <tr>
+              <td style="vertical-align: middle;">Solicitada por</td>
               <td>
                 <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-detalle-solicitada" readonly="readonly">
               </td>
+            </tr>
+            <tr>
+              <td style="vertical-align: middle;">Fecha solicitud</td>
+              <td>
+                <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-detalle-fecha-solicitud" readonly="readonly">
+              </td>
+            </tr>
+            <tr>
+              <td style="vertical-align: middle;">Area m2</td>
               <td>
                 <input class="form-control" style="margin-top: 5px;" type="text" name="" id="nota-gestion-m2" readonly="readonly">
                 <input class="form-control" style="margin-top: 5px;" type="hidden" name="" id="nota-gestion-detalle-objectid" readonly="readonly">
+                <input class="form-control" style="margin-top: 5px;" type="hidden" name="" id="nota-gestion-detalle-SIA_IDE_Etiq" readonly="readonly">
+                <input class="form-control" style="margin-top: 5px;" type="hidden" name="" id="nota-gestion-detalle-id-sia" readonly="readonly">
               </td>
             </tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="div-detalle-sia-seleccionada-historial" class="col">
+        <div class="div-subtitulo">Datos última gestión realizada</div>
+        <table class="table table-bordered table-sm">
+          <thead>
             <tr>
-              <td colspan="3">Area solicitada</td>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th>Detalle</th>
             </tr>
+          </thead>
+          <tbody>
             <tr>
-              <td colspan="3">
-                <textarea class="form-control" style="margin-top: 5px;" name="" id="txta-nota-gestion-detalle-texto" cols="30" rows="2" readonly="readonly"></textarea>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="3">Comentario</td>
-            </tr>
-            <tr>
-              <td colspan="3">
-                <textarea class="form-control" style="margin-top: 5px;" name="" id="txta-nota-gestion-comentario-texto" cols="30" rows="2" readonly="readonly"></textarea>
-
-              </td>
+              <td><span id="detalle-sia-historial-fecha-gestion"></span></td>
+              <td><span id="detalle-sia-historial-estado-gestion"></span></td>
+              <td><span id="detalle-sia-historial-detalle-gestion"></span></td>
             </tr>
           </tbody>
         </table>

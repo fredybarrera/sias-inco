@@ -156,32 +156,71 @@ function(
         }
       )
 
-      
+      //Obtengo los estados de gestión.
+      var query = '/query?outFields=*&where=1%3D1&f=pjson';
+      getRequest(config.urlBase + config.urlKeyEstadoGestion + query).then(
+        lang.hitch(this, function(objRes) { 
+          if(objRes.features.length > 0)
+          {
+            let html = '<option value="-1">[Seleccione]</option>';
+            arrayUtils.forEach(objRes.features, function(f) {
+              html += '<option value="'+ f.attributes.Estados_Gestion +'">'+ f.attributes.Estados_Gestion +'</option>'
+            }, this);
+            $('#sel-sia-estado_gestion').html(html)
+          }
+        }),
+        function(objErr) {
+          console.log('request failed', objErr)
+        }
+      );
     },
 
     _onclickEnviar: function () {
-      var deferred = new Deferred();
-
       this.getData().then(
         lang.hitch(this, function(data) { 
-          strData = JSON.stringify([data])
-          this.postRequest(this.config.urlBase + this.config.urlKeySias + '/applyEdits', strData).then(
-            lang.hitch(this, function(objRes) { 
-              console.log('objRes: ', objRes)
-              if (objRes.addResults[0].success === true)
-              {
-                this.showMessage('Sia ingresada exitosamente')
-                deferred.resolve(objRes);
-              } else {
-                msg = objRes.addResults[0].error.description
-                this.showMessage('Error al enviar la información: ' + msg, 'error')
-              }
+          this.validaIdSia().then(
+            lang.hitch(this, function(resp) { 
+              var strData = JSON.stringify([data.attr_sia])
+              this.postRequest(this.config.urlBase + this.config.urlKeySias + '/applyEdits', strData).then(
+                lang.hitch(this, function(objRes) { 
+                  if (objRes.addResults[0].success === true)
+                  {
+                    var strData = JSON.stringify([data.attr_nota_gestion])
+                    this.postRequest(this.config.urlBase + this.config.urlKeyNotasDeGestion + '/applyEdits', strData).then(
+                      lang.hitch(this, function(objRes) { 
+                        if (objRes.addResults[0].success === true)
+                        {
+                          this.showMessage('Sia ingresada exitosamente');
+                          this.resetForm();
+                          var gLayer = this.map.getLayer("gLayerGraphic");
+                          gLayer.clear();
+                          // #TODO: Aca debería prender la capa de sias y hacer zoom sobre el poligono recien creado.
+                        } else {
+                          msg = objRes.addResults[0].error.description
+                          this.showMessage('Error al enviar la información: ' + msg, 'error')
+                        }
+                      }),
+                      function(objErr) {
+                        this.showMessage('Error al enviar la información: ' + objErr, 'error')
+                        console.log('request failed', objErr);
+                      }
+                    );
+                  } else {
+                    msg = objRes.addResults[0].error.description
+                    this.showMessage('Error al enviar la información: ' + msg, 'error')
+                  }
+                }),
+                function(objErr) {
+                  this.showMessage('Error al enviar la información: ' + objErr, 'error')
+                  console.log('request failed', objErr);
+                }
+              )
             }),
-            function(objErr) {
-              deferred.resolve([]);
-            }
-          )
-          return deferred.promise;
+            lang.hitch(this, function(strError) {
+              console.log('request failed', strError);
+              this.showMessage(strError, 'error')
+            })
+          );
         }),
         lang.hitch(this, function(strError) {
           console.log('request failed', strError);
@@ -193,10 +232,29 @@ function(
     getData: function () {
       var deferred = new Deferred();
       var data = {};
-      attributes = {};
+      var dataSIa = {};
+      var dataGestion = {};
+      var attributes = {};
+      var attributesGestion = {}
+
+      // Valido que haya al menos una geometría
+      var geom = []
+      var gLayer = this.map.getLayer("gLayerGraphic");
+      if (gLayer.graphics.length === 0)
+      {
+        deferred.reject('Debe dibujar al menos un polígono')
+      } else {
+        arrayUtils.forEach(gLayer.graphics, function(f) {
+          var geometry = webMercatorUtils.webMercatorToGeographic(f.geometry);
+          geom.push(geometry);
+        }, this);
+        var union = geometryEngine.union(geom);
+        dataSIa['geometry'] = union.toJson();
+      }
 
       // Valido que se elija un profesional inco
       var profesional_inco = $('#sel-sia-profesional-inco option:selected').val();
+      console.log('profesional_inco: ', profesional_inco);
       if (profesional_inco == '-1' || profesional_inco == '')
       {
         deferred.reject('Debe seleccionar un profesional INCO')
@@ -221,7 +279,7 @@ function(
       {
         deferred.reject('Debe seleccionar una EPC')
       } else {
-        attributes['Dat_SIAs_SIA_EPC'] = $('#sel-sia-epc option:selected').text()
+        attributes['Dat_SIAs_SIA_EPC'] = epc
       }
 
       //Valido que ingrese la fecha de la solicitud
@@ -236,14 +294,23 @@ function(
       }
 
       //Valido que ingrese una id sia
-      var idSia = $('#txt-sia-id-sia').val()
+      var idSia = $('#txt-sia-id-sia').val().toUpperCase();
+      var id_sia_general = "";
+      var sia_etiqueta = "";
       if (idSia == '')
       {
         deferred.reject('Debe ingresar un ID SIA')
       } else {
-        attributes['Dat_SIAs_SIAIDGRAL2'] = idSia
-        attributes['SIAs_Areas_SIA_ID_Gral'] = idSia
+        id_sia_general = epc + '- ' + idSia;
+        sia_etiqueta = idSia.replace("SIA", "");
+        attributes['Dat_SIAs_SIA_ID_LOCAL'] = idSia;
+        attributes['Dat_SIAs_SIAIDGRAL2'] = id_sia_general;
+        attributes['SIAs_Areas_SIA_ID_Gral'] = id_sia_general;
+        attributes['Dat_SIAs_SIA_IDE_Etiq'] = sia_etiqueta.trim();
       }
+
+      attributes['Dat_SIAs_SIA_Origen'] = $('#sel-nuevasia-sia-origen option:selected').val();
+
 
       //Valido que ingrese un area solicitada
       var areaSol = $('#txta-sia-area-sol').val()
@@ -254,23 +321,92 @@ function(
         attributes['Dat_SIAs_Area_Solicitada'] = areaSol
       }
 
-      // Valido que haya al menos una geometría
-      var geom = []
-      var gLayer = this.map.getLayer("gLayerGraphic");
-      if (gLayer.graphics.length === 0)
+
+      // Nota de gestion
+      //Valido que ingrese un estado de gestión
+      var estado_gestion = $('#sel-sia-estado_gestion option:selected').val()
+      if (estado_gestion == '-1' || estado_gestion == '')
       {
-        deferred.reject('Debe dibujar al menos un polígono')
+        deferred.reject('Debe seleccionar un estado actual de gestión')
       } else {
-        arrayUtils.forEach(gLayer.graphics, function(f) {
-          var geometry = webMercatorUtils.webMercatorToGeographic(f.geometry);
-          geom.push(geometry)
-        }, this);
-        var union = geometryEngine.union(geom);
-        data['geometry'] = union.toJson()
+        attributesGestion['Estado_gestion'] = estado_gestion;
+        attributes['Dat_SIAs_Estados_Gestion'] = estado_gestion;
       }
 
-      data['attributes'] = attributes;
+      //Valido que ingrese un comentario en el estado de la gestion actual
+      var comentario = $('#txta-sia-comentario').val();
+      if (comentario == '')
+      {
+        deferred.reject('Debe ingresar comentario en el estado de la gestion actual');
+      } else {
+        attributesGestion['Comentario'] = comentario;
+      }
+      
+      attributesGestion['SIAIDGRAL2'] = id_sia_general;
+      attributesGestion['Fecha_Nota'] = datetime;
+      attributesGestion['Nombre_apellido'] = $('#sel-sia-profesional-inco option:selected').text();
+      attributesGestion['SIA_ID_LOCAL'] = idSia;
+      attributesGestion['SIA_IDE_Etiq'] = sia_etiqueta.trim();
+
+      // Id_Sistema: 468
+      // Area_Solicitada: Adicionales Statcom
+      // Datos_Adjuntos: 1435
+      // Estado_gestion2: null
+
+      // $('#chk-modificacion').is(':checked');
+      // $('#chk-area').is(':checked');
+      // $('#chk-no-declarada').is(':checked');
+
+      console.log('modificacion: ', $('#chk-modificacion').is(':checked'));
+      console.log('area: ', $('#chk-area').is(':checked'));
+      console.log('no-declarada: ', $('#chk-no-declarada').is(':checked'));
+
+      dataSIa['attributes'] = attributes;
+      data['attr_sia'] = dataSIa;
+      dataGestion['attributes'] = attributesGestion
+      data['attr_nota_gestion'] = dataGestion
+      
+      
+      console.log('data: ', data);
       deferred.resolve(data);
+      return deferred.promise;
+    },
+
+    resetForm: function () {
+      $(':input').not(':button, :submit, :reset, :checkbox, :radio').val("");
+      $(':checkbox, :radio').prop('checked', false);
+      $("#sel-sia-profesional-inco").val("-1");
+      $("#sel-sia-solicitante-inco").val("-1");
+      $("#sel-sia-epc").val("-1");
+      $("#sel-nuevasia-sia-origen").val("");
+      $("#sel-sia-estado_gestion").val("-1");
+    },
+
+    validaIdSia: function () {
+      var deferred = new Deferred();
+      var idSia = $('#txt-sia-id-sia').val().toUpperCase();
+      var epc = $('#sel-sia-epc option:selected').val()
+      id_sia_general = epc + '- ' + idSia;
+      console.log('id_sia_general: ', id_sia_general);
+
+      //Valido que el id de la sia no exista previamente en la capa.
+      var query = '/query?returnCountOnly=true&where=SIAs_Areas_SIA_ID_Gral=\'' + id_sia_general + '\'&f=pjson';
+      this.getRequest(this.config.urlBase + this.config.urlKeySias + query).then(
+        lang.hitch(this, function(objRes) { 
+          if (objRes.count !== 0)
+          {
+            console.log('reject')
+            deferred.reject('Ya existe una sia con el ID ' + id_sia_general);
+          } else {
+            console.log('resolve')
+            deferred.resolve([]);
+          }
+        }),
+        function(objErr) {
+          console.log('request failed', objErr)
+          deferred.reject(objErr);
+        }
+      );
 			return deferred.promise;
     },
 
@@ -302,12 +438,12 @@ function(
             deferred.resolve(data);
           }).catch(function (error) {
             console.log('request failed', error)
-            deferred.reject();
+            deferred.reject(error);
           }
         );
       } catch(err) {
         console.log('request failed', err)
-				deferred.reject();
+				deferred.reject(err);
 			}
       return deferred.promise;
     },
@@ -346,7 +482,6 @@ function(
     },
 
     _onclickDraw: function () {
-      var gLayer = this.map.getLayer("gLayerGraphic");
       $("#btn-draw").addClass('active');
       this.map.disableMapNavigation();
       tb = new Draw(this.map);
@@ -410,7 +545,6 @@ function(
 
     onClose: function () {
       console.log('onClose');
-
       var gLayer = this.map.getLayer("gLayerGraphic");
 			gLayer.clear();
     },

@@ -39,10 +39,10 @@
 					<td>
 						<select class="form-control" name="" id="sel-sia-epc">
 							<option value="-1">[Seleccione]</option>
-							<option value="1">EPC 1</option>
-							<option value="2">EPC 2</option>
-							<option value="3">EPC 3</option>
-							<option value="4">EPC 4</option>
+							<option value="EPC 1">EPC 1</option>
+							<option value="EPC 2">EPC 2</option>
+							<option value="EPC 3">EPC 3</option>
+							<option value="EPC 4">EPC 4</option>
 						</select>
 					</td>
 				</tr>
@@ -85,5 +85,39 @@
 			</tbody>
 		</table>
 	</div>
-  <input type="button" class="map-id btn btn-primary" value="Enviar" data-dojo-attach-event="onclick:_onclickEnviar">
+	<div class="contenedor" data-dojo-attach-point="">
+		<div class="div-subtitulo">Nota de gestión</div><br>
+		<table>
+			<tbody>
+				<tr>
+					<td>Estado actual de la gestión</td>
+					<td>
+						<select class="form-control" name="" id="sel-sia-estado_gestion"></select>
+					</td>
+				</tr>
+				<tr>
+					<td>Comentario</td>
+					<td>
+						<textarea class="form-control" style="margin-top: 5px;" name="" id="txta-sia-comentario" cols="30" rows="1"></textarea>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="contenedor" data-dojo-attach-point="">
+		<div class="div-subtitulo">Verificación de modificaciones a RCA INCO</div><br>
+		<div class="form-check" style="padding-bottom: 10px;">
+			<input type="checkbox" class="form-check-input" id="chk-modificacion" style="position: absolute;top: -3px;">
+			<label class="form-check-label" for="exampleCheck1">La SIA indica modificación de ingeniería de una OIA declarada en RCA</label>
+		</div>
+		<div class="form-check" style="padding-bottom: 10px;">
+			<input type="checkbox" class="form-check-input" id="chk-area" style="position: absolute;top: -3px;">
+			<label class="form-check-label" for="exampleCheck2">La SIA amplía el área declarada en RCA</label>
+		</div>
+		<div class="form-check" style="padding-bottom: 10px;">
+			<input type="checkbox" class="form-check-input" id="chk-no-declarada" style="position: absolute;top: -3px;">
+			<label class="form-check-label" for="exampleCheck3">La SIA describe una OIA no declarada en RCA</label>
+		</div>
+	</div>
+  <input type="button" class="btn-enviar btn btn-primary" value="Enviar" data-dojo-attach-event="onclick:_onclickEnviar">
 </div>
