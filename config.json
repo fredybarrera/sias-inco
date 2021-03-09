@@ -104,7 +104,7 @@
       },
       {
         "position": {
-          "left": 105,
+          "left": 155,
           "top": 45,
           "relativeTo": "map"
         },
@@ -117,31 +117,30 @@
       },
       {
         "position": {
-          "left": 155,
-          "top": 45,
-          "relativeTo": "map"
-        },
-        "placeholderIndex": 1,
-        "id": "_36",
-        "name": "AddData",
-        "version": "2.16",
-        "closeable": true,
-        "uri": "widgets/AddData/Widget",
-        "config": "configs/AddData/config__36.json"
-      },
-      {
-        "position": {
           "left": 205,
           "top": 45,
           "relativeTo": "map"
         },
         "placeholderIndex": 1,
-        "id": "_37",
-        "name": "BasemapGallery",
+        "id": "_36",
         "version": "2.16",
         "closeable": true,
-        "uri": "widgets/BasemapGallery/Widget",
-        "config": "configs/BasemapGallery/config__37.json"
+        "uri": ""
+      },
+      {
+        "position": {
+          "left": 105,
+          "top": 45,
+          "relativeTo": "map"
+        },
+        "placeholderIndex": 1,
+        "id": "_37",
+        "name": "EditarSia",
+        "version": "2.16",
+        "closeable": true,
+        "uri": "widgets/EditarSia/Widget",
+        "label": "Editar SIA",
+        "icon": "configs\\EditarSia\\icon__37.png"
       },
       {
         "position": {
@@ -149,7 +148,7 @@
           "top": 45,
           "relativeTo": "map"
         },
-        "placeholderIndex": 1,
+        "placeholderIndex": 2,
         "id": "_38"
       },
       {
@@ -297,6 +296,22 @@
         "id": "widgets_LayerList_Widget_19",
         "name": "LayerList",
         "index": 3
+      },
+      {
+        "name": "BasemapGallery",
+        "version": "2.16",
+        "uri": "widgets/BasemapGallery/Widget",
+        "config": "configs/BasemapGallery/config_widgets_BasemapGallery_Widget_47.json",
+        "index": 4,
+        "id": "widgets_BasemapGallery_Widget_47"
+      },
+      {
+        "name": "AddData",
+        "version": "2.16",
+        "uri": "widgets/AddData/Widget",
+        "config": "configs/AddData/config_widgets_AddData_Widget_48.json",
+        "index": 6,
+        "id": "widgets_AddData_Widget_48"
       }
     ],
     "groups": []
@@ -484,5 +499,14 @@
         }
       }
     }
+  },
+  "Sias": {
+    "urlBase": "https://gis.ingenieria.esri.cl/serversp/rest/services/AMSA_INCO/INCO_SIAS_WGS84/FeatureServer/",
+    "urlKeySias": "0",
+    "urlKeyNotasDeGestion": "1",
+    "urlKeyEstadoGestion": "2",
+    "urlKeyProfesionales": "3",
+    "urlKeySolicitante": "4",
+    "geometryServiceUrl": "https://sampleserver1.arcgisonline.com/arcgis/rest/services/Geometry/GeometryServer"
   }
 }

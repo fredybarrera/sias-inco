@@ -22,23 +22,13 @@ define([
 	"dojo/_base/array",
 	"dojo/json",
   "jimu/BaseWidget",
-  "esri/toolbars/draw",
-  "esri/toolbars/edit",
   "esri/graphic",
   "esri/symbols/SimpleLineSymbol",
   "esri/symbols/SimpleFillSymbol",
   "esri/Color",
   'esri/layers/GraphicsLayer',
-  "dojo/_base/event",
-  "esri/tasks/AreasAndLengthsParameters",
-  "esri/tasks/GeometryService",
-  "esri/geometry/webMercatorUtils",
-  "esri/geometry/geometryEngine",
   "esri/geometry/Polygon",
-  "esri/SpatialReference",
   "esri/InfoTemplate", 
-  "esri/geometry/Point", 
-  // "jimu/loaderplugins/jquery-loader!https://code.jquery.com/jquery-3.5.1.min.js",
 ],
 function(
   declare, 
@@ -49,97 +39,43 @@ function(
 	arrayUtils, 
 	JSON,
   BaseWidget, 
-  Draw,
-  Edit,
   Graphic,
   SimpleLineSymbol,
   SimpleFillSymbol,
   Color,
   GraphicsLayer,
-  event,
-  AreasAndLengthsParameters,
-  GeometryService,
-  webMercatorUtils,
-  geometryEngine,
   Polygon,
-  SpatialReference,
-  InfoTemplate,
-  Point){
+  InfoTemplate){
   return declare(BaseWidget, {
     name: 'Notas de gestión',
     sias: null,
-    geometryService: null,
-
     startup: function(){
       this.inherited(arguments);
       var map = this.map;
       var message = this.showMessage
-      var config = this.config
+      var config = this.appConfig.Sias
       var getRequest = this.getRequest
       var gLayer = new GraphicsLayer({'id': 'gLayerGraphicNotas'});
       map.addLayer(gLayer);
 
-      var html_infotemplate = this.getInfotemplate()
+      var html_infotemplate = this.getInfotemplate();
 
       // Obtengo las notas de gestión registradas
-      var query = '/query?outFields=SIAs_Areas_SIA_ID_Gral&orderByFields=SIAs_Areas_SIA_ID_Gral&returnGeometry=false&where=1%3D1&f=pjson';
-      getRequest(config.urlBase + config.urlKeySias + query).then(
-        lang.hitch(this, function(objRes) { 
-          if(objRes.features.length > 0)
-          {
-            let html = '<option value="-1">[Seleccione]</option>';
-            arrayUtils.forEach(objRes.features, function(f) {
-              html += '<option value="'+ f.attributes.SIAs_Areas_SIA_ID_Gral +'">'+ f.attributes.SIAs_Areas_SIA_ID_Gral +'</option>'
-            }, this);
-            $('#sel-nota-gestion-sia').html(html)
-          }
-        }),
-        function(objErr) {
-          console.log('request failed', objErr)
-        }
-      );
-
+      this.loadNotasGestion();
 
       // Obtengo los estados de gestión.
-      var query = '/query?outFields=*&where=1%3D1&f=pjson';
-      getRequest(config.urlBase + config.urlKeyEstadoGestion + query).then(
-        lang.hitch(this, function(objRes) { 
-          if(objRes.features.length > 0)
-          {
-            let html = '<option value="-1">[Seleccione]</option>';
-            arrayUtils.forEach(objRes.features, function(f) {
-              html += '<option value="'+ f.attributes.Estados_Gestion +'">'+ f.attributes.Estados_Gestion +'</option>'
-            }, this);
-            $('#sel-nota-gestion-estado-sia').html(html)
-          }
-        }),
-        function(objErr) {
-          console.log('request failed', objErr)
-        }
-      );
-
+      this.loadEstadosGestion();
+      
       // Obtengo los profesionales inco.
-      var query = '/query?outFields=*&where=1%3D1&f=pjson';
-      getRequest(config.urlBase + config.urlKeyProfesionales + query).then(
-        lang.hitch(this, function(objRes) { 
-          if(objRes.features.length > 0)
-          {
-            let html = '<option value="-1">[Seleccione]</option>';
-            arrayUtils.forEach(objRes.features, function(f) {
-              html += '<option value="'+ f.attributes.Nombre_apellido +'">'+ f.attributes.Nombre_apellido +'</option>'
-            }, this);
-            $('#sel-nota-gestion-autor').html(html)
-          }
-        }),
-        function(objErr) {
-          console.log('request failed', objErr)
-        }
-      );
-
+      this.loadProfesionalesInco();
 
       $('#sel-nota-gestion-sia').change(function() {
         let id_sia = $(this).val();
         gLayer.clear();
+        $("#detalle-sia-historial-fecha-gestion").text('');
+        $("#detalle-sia-historial-estado-gestion").text('');
+        $("#detalle-sia-historial-detalle-gestion").text('');
+        $('#div-notas-registradas').html('');
 
         // Obtengo el historial de nostas de gestión de la SIA.
         var query = '/query?outFields=*&orderByFields=Fecha_Nota+desc&where=SIAIDGRAL2=\'' + id_sia + '\'&f=pjson';
@@ -195,8 +131,6 @@ function(
               var options = {  dateStyle: 'medium' };
               var datetime = d.toLocaleString("es-CL", options);
 
-              console.log('datetime: ', datetime);
-
               $("#nota-gestion-detalle-id-sia").val(data.Dat_SIAs_SIA_ID_LOCAL);
               $("#nota-gestion-detalle-SIA_IDE_Etiq").val(data.Dat_SIAs_SIA_IDE_Etiq);
               $("#nota-gestion-detalle-fecha-solicitud").val(datetime);
@@ -207,12 +141,10 @@ function(
               $("#nota-gestion-id-sia-gral").val(data.SIAs_Areas_SIA_ID_Gral);
               $("#nota-gestion-detalle-objectid").val(data.OBJECTID);
 
-
               var sfs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
                 new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
                 new Color([255,0,0]), 2),new Color([255,255,0,0.25])
               );
-
 
               var attr = {
                 "Dat_SIAs_SIA_EPC": data.Dat_SIAs_SIA_EPC,
@@ -225,23 +157,17 @@ function(
                 "SIAs_Areas_SIA_ID_Gral": data.SIAs_Areas_SIA_ID_Gral
               };
 
-              var latLon
               var infoTemplate = new InfoTemplate("SIA", html_infotemplate);
-              var polygon = new Polygon(new SpatialReference(sr));
-              arrayUtils.forEach(geom.rings, function(f) {
-                polygon.addRing(f)
-                latLon = f[0]
-              }, this);
+              var polygon = new Polygon(geom);
               var graphic = new Graphic(polygon, sfs, attr, infoTemplate);
               gLayer.add(graphic);
-              point = new Point(latLon[0], latLon[1]);
-							map.centerAndZoom(point, 16);
+              map.setExtent(polygon.getExtent(), true)
             }
           }),
           function(objErr) {
             console.log('request failed', objErr)
           }
-        )
+        );
 
         //Obtengo la ultima gestion de la sia
         var query = '/query?outFields=*&orderByFields=Fecha_Nota+desc&where=SIAIDGRAL2=\'' + id_sia + '\'&resultOffset=0&resultRecordCount=1&f=pjson';
@@ -263,7 +189,92 @@ function(
             console.log('request failed', objErr)
           }
         )
-      });
+      });//change
+
+      $('#sel-nota-gestion-estado-sia').change(function() {
+        let notaGestion = $(this).val();
+        if(notaGestion === 'Aprobada')
+        {
+          $("#tr-fecha-intervencion").show();// Fecha_Desmovilizacion_Plan
+          $("#tr-fecha-desmovilizacion").show();// Fecha_InicioIntervencion_Plan
+        }else{
+          $("#tr-fecha-intervencion").hide();
+          $("#tr-fecha-desmovilizacion").hide();
+        }
+
+        if(notaGestion == 'Desmovilizada')
+        {
+          $("#tr-fecha-real-desmovilizacion").show();// Fecha_Desmovilizacion_Real
+
+        }else{
+          $("#tr-fecha-real-desmovilizacion").hide();
+        }
+
+        if(notaGestion == 'Construcción iniciada')
+        {
+          $("#tr-fecha-real-intervencion").show();// Fecha_InicioIntervencion_Real
+
+        }else{
+          $("#tr-fecha-real-intervencion").hide();
+        }
+      });//change
+    },
+
+    loadNotasGestion: function () {
+      var query = '/query?outFields=SIAs_Areas_SIA_ID_Gral&orderByFields=SIAs_Areas_SIA_ID_Gral&returnGeometry=false&where=1%3D1&f=pjson';
+      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySias + query).then(
+        lang.hitch(this, function(response) { 
+          if(response.features.length > 0)
+          {
+            let html = '<option value="-1">[Seleccione]</option>';
+            html += response.features.map(function (f) {
+              return '<option value="' + f.attributes.SIAs_Areas_SIA_ID_Gral + '">' + f.attributes.SIAs_Areas_SIA_ID_Gral + '</option>';
+            });
+            $('#sel-nota-gestion-sia').html(html)
+          }
+        }),
+        function(objErr) {
+          console.log('request failed', objErr)
+        }
+      );
+    },
+
+    loadEstadosGestion: function () {
+      var query = '/query?outFields=*&&orderByFields=Estados_Gestion&where=1%3D1&f=pjson';
+      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyEstadoGestion + query).then(
+        lang.hitch(this, function(response) { 
+          if(response.features.length > 0)
+          {
+            let html = '<option value="-1">[Seleccione]</option>';
+            html += response.features.map(function (f) {
+              return '<option value="' + f.attributes.Estados_Gestion + '">' + f.attributes.Estados_Gestion + '</option>';
+            });
+            $('#sel-nota-gestion-estado-sia').html(html)
+          }
+        }),
+        function(objErr) {
+          console.log('request failed', objErr)
+        }
+      );
+    },
+
+    loadProfesionalesInco: function () {
+      var query = '/query?outFields=*&where=1%3D1&f=pjson';
+      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyProfesionales + query).then(
+        lang.hitch(this, function(response) { 
+          if(response.features.length > 0)
+          {
+            let html = '<option value="-1">[Seleccione]</option>';
+            html += response.features.map(function (f) {
+              return '<option value="' + f.attributes.Nombre_apellido + '">' + f.attributes.Nombre_apellido + '</option>';
+            });
+            $('#sel-nota-gestion-autor').html(html)
+          }
+        }),
+        function(objErr) {
+          console.log('request failed', objErr)
+        }
+      );
     },
 
     _onclickEnviar: function () {
@@ -272,32 +283,29 @@ function(
 
       this.getData().then(
         lang.hitch(this, function(data) { 
-          strData = JSON.stringify([data])
-          console.log('data: ', data);
-          var objectid = $('#nota-gestion-detalle-objectid').val();
-          var sia_gral = $('#sel-nota-gestion-sia option:selected').val();
-          var estadoGestion = data.attributes.Estado_gestion
-          this.postRequest(this.config.urlBase + this.config.urlKeyNotasDeGestion + '/applyEdits', strData, 'adds').then(
+          var strData = JSON.stringify([data.attr_nota])
+          var sia_gral = data.attr_nota.attributes['SIAIDGRAL2'];
+          var mensaje = data.mensaje;
+          this.postRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyNotasDeGestion + '/applyEdits', strData, 'adds').then(
             lang.hitch(this, function(objRes) { 
               console.log('objRes: ', objRes)
               if (objRes.addResults[0].success === true)
               {
                 // Actualizo el estado de la SIA.
-                var data = {};
-                var attributes = {};
-                attributes['Dat_SIAs_Estados_Gestion'] = estadoGestion
-                attributes['OBJECTID'] = parseInt(objectid);
-                data['attributes'] = attributes;
-                strData = JSON.stringify([data])
-
-                this.postRequest(this.config.urlBase + this.config.urlKeySias + '/applyEdits', strData, 'updates').then(
+                var strData = JSON.stringify([data.attr_sia])
+                this.postRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySias + '/applyEdits', strData, 'updates').then(
                   lang.hitch(this, function(objRes) { 
                     console.log('objRes: ', objRes)
                     if (objRes.updateResults[0].success === true)
                     {
-                      showMessage('Nota de gestión ingresada exitosamente');
-                      //Reseteo el formunlario                      
-                      this.resetForm();
+                      //Muestro el mensaje de éxito.
+                      showMessage(mensaje);
+                      //Refresco la capa de sias.
+                      if (typeof featureLayerSias !== 'undefined') {
+                        featureLayerSias.refresh();
+                      }
+                      //Reseteo el formunlario.
+                      this.resetFormNota();
                       //Activo el select con la SIA gestinada para que cargue el historial.
                       $("#sel-nota-gestion-sia").val("-1").change();
                       $("#sel-nota-gestion-sia").val(sia_gral).change();
@@ -331,17 +339,39 @@ function(
       );
     },
 
+    resetFormNota: function () {
+      $(':input').not(':button, :submit, :reset, :checkbox, :radio').val("");
+      $("#sel-nota-gestion-estado-sia").val("-1");
+      $("#sel-nota-gestion-autor").val("-1");
+      $("#tr-fecha-intervencion").hide();
+      $("#tr-fecha-desmovilizacion").hide();
+      $("#tr-fecha-real-desmovilizacion").hide();
+      $("#tr-fecha-real-intervencion").hide();
+    },
+
     resetForm: function () {
       $(':input').not(':button, :submit, :reset, :checkbox, :radio').val("");
       $("#sel-nota-gestion-sia").val("-1");
+      $("#sel-nota-gestion-sia").change();
       $("#sel-nota-gestion-estado-sia").val("-1");
       $("#sel-nota-gestion-autor").val("-1");
+      $("#tr-fecha-intervencion").hide();
+      $("#tr-fecha-desmovilizacion").hide();
+      $("#tr-fecha-real-desmovilizacion").hide();
+      $("#tr-fecha-real-intervencion").hide();
+
     },
 
     getData: function () {
       var deferred = new Deferred();
+      var mensaje = 'Nota de gestión ingresada exitosamente.';
       var data = {};
-      var attributes = {};
+
+      var dataNota = {};
+      var attributesNota = {};
+
+      var dataSia = {};
+      var attributesSia = {};
 
       // Valido que se elija una SIA
       var sia_gral = $('#sel-nota-gestion-sia option:selected').val();
@@ -349,7 +379,7 @@ function(
       {
         deferred.reject('Debe seleccionar una SIA')
       } else {
-        attributes['SIAIDGRAL2'] = sia_gral
+        attributesNota['SIAIDGRAL2'] = sia_gral
       }
 
       //Valido que ingrese la fecha de la solicitud
@@ -358,19 +388,96 @@ function(
 
       if (fechaSolicitud == '')
       {
-        deferred.reject('Debe indicar fecha de la gestión')
+        deferred.reject('Debe indicar fecha de la gestión');
       } else {
-        attributes['Fecha_Nota'] = datetime;
+        attributesNota['Fecha_Nota'] = datetime;
       }
 
       //Valido que ingrese el estado de la nota de gestion.
-      var estado = $('#sel-nota-gestion-estado-sia option:selected').val()
+      var estado = $('#sel-nota-gestion-estado-sia option:selected').val();
+      var datetime_now = new Date().getTime();
       if (estado == '-1' || estado == '')
       {
-        deferred.reject('Debe seleccionar un estado actual de gestión')
+        deferred.reject('Debe seleccionar un estado actual de gestión');
       } else {
-        attributes['Estado_gestion'] = estado;
+        attributesNota['Estado_gestion'] = estado;
+        attributesSia['Dat_SIAs_Estados_Gestion'] = estado;
+        if(estado === 'Aprobada')
+        {
+          let fecha_desmo = $('#Fecha_Desmovilizacion_Plan').val();
+          let fecha_inter = $('#Fecha_InicioIntervencion_Plan').val();
+
+          if (fecha_desmo == '' || fecha_inter == '')
+          {
+            deferred.reject('Debe indicar fecha tentativa para inicio de intervención y desmovilización.');
+          }else{
+            let datetime_desmo = new Date(fecha_desmo).getTime();
+            let datetime_inter = new Date(fecha_inter).getTime();
+
+            if(datetime_now > datetime_desmo || datetime_now > datetime_inter)
+            {
+              deferred.reject('La fecha intervención y/o desmovilización no puede ser menor a hoy.');
+            }else{
+              attributesSia['Fecha_Desmovilizacion_Plan'] = datetime_desmo;
+              attributesSia['Fecha_InicioIntervencion_Plan'] = datetime_inter;
+              attributesSia['Doc_Link_Aprob'] = 'https://aminerals.sharepoint.com/sites/UsuariosSIGINCO/SIAs%20Verificadores/'+ sia_gral +'/Aprobacion.pdf';
+              mensaje = `Nota de gestión ingresada exitosamente.
+              Recuerda ingresar el documento de aprobación en repositorio de Sharepoint:
+              Nombre documento a cargar: "Aprobacion.pdf"
+              Nombre de carpeta a crear: ${sia_gral} 
+              Link repositorio: https://aminerals.sharepoint.com/sites/UsuariosSIGINCO/SIAs%20Verificadores
+              
+              Tu ayuda es muy importante para nuestro control documental. ¡Muchas gracias!`;
+            }
+          }
+        }
+
+        if(estado === 'Desmovilizada')
+        {
+          let fecha_real_desmo = $('#Fecha_Desmovilizacion_Real').val();
+          if(fecha_real_desmo == '')
+          {
+            deferred.reject('Debe indicar fecha real de desmovilización.');
+          }else{
+            let datetime_real_desmo = new Date(fecha_real_desmo).getTime();
+
+            // if(datetime_now > datetime_real_desmo)
+            // {
+              // deferred.reject('La fecha real de desmovilización no puede ser menor a hoy.');
+            // }else{
+              attributesSia['Fecha_Desmovilizacion_Real'] = datetime_real_desmo;
+              attributesSia['Doc_Link_Desmov'] = 'https://aminerals.sharepoint.com/sites/UsuariosSIGINCO/SIAs%20Verificadores/'+ sia_gral +'/Desmovilizacion.pdf'
+              mensaje = `Nota de gestión ingresada exitosamente.
+              Recuerde ingresar el documento de aprobación en repositorio de Sharepoint (en el siguiente link : https://aminerals.sharepoint.com/sites/UsuariosSIGINCO/SIAs%20Verificadores/${sia_gral}:
+              Nombre documento a cargar: "Desmovilizacion.pdf"
+              
+              Tu ayuda es muy importante para nuestro control documental. ¡Muchas gracias!`;
+            // }
+          }
+        }
+
+        if(estado === 'Construcción iniciada')
+        {
+          let fecha_real_inter = $('#Fecha_InicioIntervencion_Real').val();
+
+          if(fecha_real_inter == '')
+          {
+            deferred.reject('Debe indicar fecha real de inicio intervención.');
+          }else{
+            let datetime_real_inter = new Date(fecha_real_inter).getTime();
+
+            // if(datetime_now > datetime_real_inter)
+            // {
+              // deferred.reject('La fecha real de inicio intervención no puede ser menor a hoy.');
+            // }else{
+              attributesSia['Fecha_InicioIntervencion_Real'] = datetime_real_inter;
+            // }
+          }
+        }
       }
+
+      var objectid = $('#nota-gestion-detalle-objectid').val();
+      attributesSia['OBJECTID'] = parseInt(objectid);
 
       //Valido que ingrese un comentario
       var comentario = $('#txta-nota-gestion-texto').val()
@@ -378,7 +485,7 @@ function(
       {
         deferred.reject('Debe ingresar una nota de gestión')
       } else {
-        attributes['Comentario'] = comentario
+        attributesNota['Comentario'] = comentario
       }
 
       //Valido que ingrese un profesional inco.
@@ -387,18 +494,20 @@ function(
       {
         deferred.reject('Debe seleccionar un autor')
       } else {
-        attributes['Nombre_apellido'] = profesional;
+        attributesNota['Nombre_apellido'] = profesional;
       }
 
       var id_sia_gral = $('#nota-gestion-detalle-id-sia').val()
-      attributes['SIA_ID_LOCAL'] = id_sia_gral;
+      attributesNota['SIA_ID_LOCAL'] = id_sia_gral;
       var SIA_IDE_Etiq = $('#nota-gestion-detalle-SIA_IDE_Etiq').val()
-      attributes['SIA_IDE_Etiq'] = SIA_IDE_Etiq;
+      attributesNota['SIA_IDE_Etiq'] = SIA_IDE_Etiq;
 
-
-      data['attributes'] = attributes;
+      dataNota['attributes'] = attributesNota;
+      data['attr_nota'] = dataNota;
+      dataSia['attributes'] = attributesSia;
+      data['attr_sia'] = dataSia;
+      data['mensaje'] = mensaje;
       console.log('data: ', data);
-      
       deferred.resolve(data);
 			return deferred.promise;
     },
@@ -503,12 +612,16 @@ function(
 
     onOpen: function () {
       console.log('onOpen');
+      if (typeof featureLayerSias !== 'undefined') {
+        console.log('featureLayerSias: ', featureLayerSias);
+      }
     },
 
     onClose: function () {
       console.log('onClose');
       var gLayer = this.map.getLayer("gLayerGraphicNotas");
 			gLayer.clear();
+      this.resetForm();
     },
 
     onMinimize: function () {
@@ -528,5 +641,3 @@ function(
     }
   });
 });
-
-

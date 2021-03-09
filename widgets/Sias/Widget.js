@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////////
+var VerGestion, featureLayerSias;
+var geometriesKml = {};
 define([
   "dojo/_base/declare", 
   "dojo/dom",
@@ -34,7 +36,8 @@ define([
   "esri/tasks/GeometryService",
   "esri/geometry/webMercatorUtils",
   "esri/geometry/geometryEngine",
-  "jimu/loaderplugins/jquery-loader!https://code.jquery.com/jquery-3.5.1.min.js",
+  "esri/InfoTemplate",
+  "esri/geometry/Polygon"
 ],
 function(
   declare, 
@@ -57,21 +60,41 @@ function(
   GeometryService,
   webMercatorUtils,
   geometryEngine,
-  $){
+  InfoTemplate,
+  Polygon){
   return declare(BaseWidget, {
     name: 'Ingresar nueva SIA',
     sias: null,
     geometryService: null,
-    baseClass: 'jimu-widget-report',
+    baseClass: 'jimu-widget-sias',
 
     startup: function(){
       var map = this.map;
-      var message = this.showMessage
-      var config = this.config
-      var getRequest = this.getRequest
+      var config = this.appConfig.Sias
 
+      // Obtengo los profesionales inco
+      this.loadProfesionalesInco();
+
+      // Obtengo los solicitantes inco
+      this.loadSolicitantesInco();
+
+      //Obtengo las sias de origen
+      this.loadSiasOrigen();
+
+      //Obtengo los estados de gestión.
+      this.loadEstadosGestion();
+
+      //Cargo la capa de SIAS en el mapa.
+      this.loadLayerSias();
+
+      //Layer para los polígonos de una nueva sia, dibujados desde el widget.
       var gLayer = new GraphicsLayer({'id': 'gLayerGraphic'});
       map.addLayer(gLayer);
+
+      dojo.connect(featureLayerSias, "onClick", function(evt) {
+        $(".esriPopup").css({ 'z-index': 40 });
+        $(".esriPopup").removeClass("esriPopupHidden").addClass("esriPopupVisible");
+      });
 
       this.geometryService = new GeometryService(config.geometryServiceUrl);
       
@@ -91,7 +114,8 @@ function(
 
       gLayer.on("click", function(evt) {
         event.stop(evt);
-        if (evt.ctrlKey === true || evt.metaKey === true) {  //delete feature if ctrl key is depressed
+        //delete feature if ctrl key is depressed
+        if (evt.ctrlKey === true || evt.metaKey === true) {  
           editToolbar.deactivate();
           gLayer.remove(evt.graphic)
           editingEnabled=false;
@@ -101,71 +125,88 @@ function(
       editToolbar.on("vertex-move-stop", lang.hitch(this, function(evt) {
 				// this.despliegaAreaPerimetro(evt.graphic.geometry);
 			}));
+    },
 
-      // Obtengo los profesionales inco
+    loadLayerSias: function () {
+      var htmlInfoTemplate = this.getHtmlInfotemplate();
+      VerGestion = this._onclickVerGestion;
+      var infoTemplate = new InfoTemplate("SIA", htmlInfoTemplate);  
+      featureLayerSias = new esri.layers.FeatureLayer(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySias, {
+        mode: esri.layers.FeatureLayer.MODE_ONDEMAND,
+        infoTemplate: infoTemplate,
+        outFields: ["*"]
+      });
+      featureLayerSias.setOpacity(0.5);
+      this.map.addLayer(featureLayerSias);
+    },
+
+    loadProfesionalesInco: function () {
       var query = '/query?outFields=*&returnGeometry=true&where=1%3D1&orderByFields=Apellidos&f=pjson'
-      getRequest(config.urlBase + config.urlKeyProfesionales + query).then(
-        lang.hitch(this, function(objRes) { 
-          if(objRes.features.length > 0)
+      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyProfesionales + query).then(
+        lang.hitch(this, function(response) { 
+          if(response.features.length > 0)
           {
             var html = '<option value="-1">[Seleccione]</option>';
-            arrayUtils.forEach(objRes.features, function(f) {
-              html += '<option value="'+ f.attributes.ID_ProfesionalINCO +'">'+ f.attributes.Nombre_apellido +'</option>'
-            }, this);
+            html += response.features.map(function (f) {
+              return '<option value="' + f.attributes.ID_ProfesionalINCO + '">' + f.attributes.Nombre_apellido + '</option>';
+            });
             $('#sel-sia-profesional-inco').html(html)
           }
         }),
         function(objErr) {
           console.log('request failed', objErr)
         }
-      )
+      );
+    },
 
-      // Obtengo los solicitantes inco
+    loadSolicitantesInco: function () {
       var query = '/query?outFields=*&returnGeometry=true&where=1%3D1&orderByFields=Apellidos&f=pjson'
-      getRequest(config.urlBase + config.urlKeySolicitante + query).then(
-        lang.hitch(this, function(objRes) { 
-          if(objRes.features.length > 0)
+      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySolicitante + query).then(
+        lang.hitch(this, function(response) { 
+          if(response.features.length > 0)
           {
-            var html = '<option value="-1">[Seleccione]</option>';
-            arrayUtils.forEach(objRes.features, function(f) {
-              html += '<option value="'+ f.attributes.ID_Solicitante +'">[' + f.attributes.Empresa + '] ' + f.attributes.Apellidos + ', ' + f.attributes.Nombres + '</option>'
-            }, this);
+            let html = '<option value="-1">[Seleccione]</option>';
+            html += response.features.map(function (f) {
+              return '<option value="' + f.attributes.ID_Solicitante + '">[' + f.attributes.Empresa + '] ' + f.attributes.Apellidos + ', ' + f.attributes.Nombres + '</option>';
+            });
             $('#sel-sia-solicitante-inco').html(html)
           }
         }),
         function(objErr) {
           console.log('request failed', objErr)
         }
-      )
+      );
+    },
 
-      //Obtengo las sias de origen
+    loadSiasOrigen: function () {
       var query = '/query?outFields=Dat_SIAs_SIAIDGRAL2&returnGeometry=false&where=1%3D1&orderByFields=Dat_SIAs_SIAIDGRAL2&f=pjson'
-      getRequest(config.urlBase + config.urlKeySias + query).then(
-        lang.hitch(this, function(objRes) { 
-          if(objRes.features.length > 0)
+      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySias + query).then(
+        lang.hitch(this, function(response) { 
+          if(response.features.length > 0)
           {
-            var html = '<option value=""></option>';
-            arrayUtils.forEach(objRes.features, function(f) {
-              html += '<option value="'+ f.attributes.Dat_SIAs_SIAIDGRAL2 +'">' + f.attributes.Dat_SIAs_SIAIDGRAL2 + '</option>'
-            }, this);
+            let html = '<option value=""></option>';
+            html += response.features.map(function (f) {
+              return '<option value="' + f.attributes.Dat_SIAs_SIAIDGRAL2 + '">' + f.attributes.Dat_SIAs_SIAIDGRAL2 + '</option>';
+            });
             $('#sel-nuevasia-sia-origen').html(html)
           }
         }),
         function(objErr) {
           console.log('request failed', objErr)
         }
-      )
+      );
+    },
 
-      //Obtengo los estados de gestión.
+    loadEstadosGestion: function () {
       var query = '/query?outFields=*&where=1%3D1&f=pjson';
-      getRequest(config.urlBase + config.urlKeyEstadoGestion + query).then(
-        lang.hitch(this, function(objRes) { 
-          if(objRes.features.length > 0)
+      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyEstadoGestion + query).then(
+        lang.hitch(this, function(response) { 
+          if(response.features.length > 0)
           {
             let html = '<option value="-1">[Seleccione]</option>';
-            arrayUtils.forEach(objRes.features, function(f) {
-              html += '<option value="'+ f.attributes.Estados_Gestion +'">'+ f.attributes.Estados_Gestion +'</option>'
-            }, this);
+            html += response.features.map(function (f) {
+              return '<option value="' + f.attributes.Estados_Gestion + '">' + f.attributes.Estados_Gestion + '</option>';
+            });
             $('#sel-sia-estado_gestion').html(html)
           }
         }),
@@ -175,26 +216,75 @@ function(
       );
     },
 
+    getHtmlInfotemplate: function () {
+        let html_infotemplate = "";
+        html_infotemplate += "<table class='table table-sm'>";
+        html_infotemplate += "<tbody><tr><td>ID SIA General:</td><td>${SIAs_Areas_SIA_ID_Gral}</td></tr>";
+        html_infotemplate += "<tr><td>EPC:</td><td>${Dat_SIAs_SIA_EPC}</td></tr>";
+        html_infotemplate += "<tr><td>Area solicitada:</td><td>${Dat_SIAs_Area_Solicitada}</td></tr>";
+        html_infotemplate += "<tr><td>Fecha solicitud:</td><td>${Dat_SIAs_Fecha_Solicitud}</td></tr>";
+        html_infotemplate += "<tr><td>Estado gestión:</td><td>${Dat_SIAs_Estados_Gestion}</td></tr>";
+        html_infotemplate += "<tr><td>Comentario:</td><td>${Dat_SIAs_Comentario}</td></tr>";
+        html_infotemplate += "<tr><td>SIA Origen:</td><td>${Dat_SIAs_SIA_Origen}</td></tr>";
+        html_infotemplate += "<tr><td colspan='2'>";
+        html_infotemplate += "<input type='button' id='botonVerGestion' class='btn btn-primary btn-sm' value='Ver gestión' onclick='VerGestion("+'"'+"${SIAs_Areas_SIA_ID_Gral}|${OBJECTID}"+'"'+");'>";
+        html_infotemplate += "</td></tr></tbody></table>";
+      return html_infotemplate;
+    },
+
+    _onclickVerGestion: function (data) {
+      var aux = data.split("|");
+      var id_sia_general = aux[0];
+      id_sia_general;
+      console.log('_onclickVerGestion id_sia_general: ', id_sia_general);
+      var panelIsVisible = $("#_35_panel").is(":visible");
+      console.log('_onclickVerGestion panelIsVisible: ', panelIsVisible);
+
+      if(panelIsVisible)
+      {
+        $("#sel-nota-gestion-sia").val(id_sia_general)
+        $("#sel-nota-gestion-sia").change();
+      }else{
+        $("#dijit__WidgetBase_1").click();
+        const timeValue = setInterval((interval) => {
+          console.log('acaaa');
+          console.log($("#_35_panel").is(":visible"));
+          if($("#_35_panel").is(":visible"))
+          {
+            $("#sel-nota-gestion-sia").val(id_sia_general)
+            $("#sel-nota-gestion-sia").change();
+            clearInterval(timeValue);
+          }
+        }, 1000); //Cada medio segundos
+      }
+
+      $(".esriPopup").removeClass("esriPopupVisible").addClass("esriPopupHidden");
+      $(".esriPopup").css({ 'z-index': -40 });
+    },
+
     _onclickEnviar: function () {
       this.getData().then(
         lang.hitch(this, function(data) { 
+          let geom = data.attr_sia['geometry'];
+          var polygon = new Polygon(geom);
           this.validaIdSia().then(
             lang.hitch(this, function(resp) { 
               var strData = JSON.stringify([data.attr_sia])
-              this.postRequest(this.config.urlBase + this.config.urlKeySias + '/applyEdits', strData).then(
+              this.postRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySias + '/applyEdits', strData).then(
                 lang.hitch(this, function(objRes) { 
                   if (objRes.addResults[0].success === true)
                   {
                     var strData = JSON.stringify([data.attr_nota_gestion])
-                    this.postRequest(this.config.urlBase + this.config.urlKeyNotasDeGestion + '/applyEdits', strData).then(
+                    this.postRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyNotasDeGestion + '/applyEdits', strData).then(
                       lang.hitch(this, function(objRes) { 
                         if (objRes.addResults[0].success === true)
                         {
+                          featureLayerSias.refresh();
                           this.showMessage('Sia ingresada exitosamente');
                           this.resetForm();
                           var gLayer = this.map.getLayer("gLayerGraphic");
                           gLayer.clear();
-                          // #TODO: Aca debería prender la capa de sias y hacer zoom sobre el poligono recien creado.
+                          this.map.setExtent(polygon.getExtent(), true)
                         } else {
                           msg = objRes.addResults[0].error.description
                           this.showMessage('Error al enviar la información: ' + msg, 'error')
@@ -237,24 +327,31 @@ function(
       var attributes = {};
       var attributesGestion = {}
 
-      // Valido que haya al menos una geometría
-      var geom = []
-      var gLayer = this.map.getLayer("gLayerGraphic");
-      if (gLayer.graphics.length === 0)
+      console.log('geometriesKml: ', geometriesKml);
+
+      // Compruebo si se seleccionó una capa (kml) cargada desde el widget "añadir datos"
+      if(geometriesKml.hasOwnProperty('rings'))
       {
-        deferred.reject('Debe dibujar al menos un polígono')
-      } else {
-        arrayUtils.forEach(gLayer.graphics, function(f) {
-          var geometry = webMercatorUtils.webMercatorToGeographic(f.geometry);
-          geom.push(geometry);
-        }, this);
-        var union = geometryEngine.union(geom);
-        dataSIa['geometry'] = union.toJson();
+        dataSIa['geometry'] = geometriesKml.toJson();
+      }else{
+        // Valido que exista al menos una geometría dibujada en el mapa.
+        var geom = [];
+        var gLayer = this.map.getLayer("gLayerGraphic");
+        if (gLayer.graphics.length === 0)
+        {
+          deferred.reject('Debe dibujar al menos un polígono')
+        } else {
+          arrayUtils.forEach(gLayer.graphics, function(f) {
+            var geometry = webMercatorUtils.webMercatorToGeographic(f.geometry);
+            geom.push(geometry);
+          }, this);
+          var union = geometryEngine.union(geom);
+          dataSIa['geometry'] = union.toJson();
+        }
       }
 
       // Valido que se elija un profesional inco
       var profesional_inco = $('#sel-sia-profesional-inco option:selected').val();
-      console.log('profesional_inco: ', profesional_inco);
       if (profesional_inco == '-1' || profesional_inco == '')
       {
         deferred.reject('Debe seleccionar un profesional INCO')
@@ -341,7 +438,18 @@ function(
       } else {
         attributesGestion['Comentario'] = comentario;
       }
+
+
+      // “Modifica_Ingenieria”, “Modifica_Area_RCA” y “Describe_Cambio_RCA”.
+
+      // La columna a añadir para almacenar la respuesta a la pregunta nueva debería llamarse “OIA_no_descrita_RCA”, 
+      // o algo similar, de tipo binario
       
+      // Describe_Cambio_RCA: este campo nosé donde se llena, no se está ocupando.
+      attributes['Modifica_Ingenieria'] = ($('#chk-modificacion').is(':checked')) ? 1 : 0;
+      attributes['Modifica_Area_RCA'] = ($('#chk-area').is(':checked')) ? 1 : 0;
+      attributes['OIA_no_descrita_RCA'] = ($('#chk-no-declarada').is(':checked')) ? 1 : 0;
+
       attributesGestion['SIAIDGRAL2'] = id_sia_general;
       attributesGestion['Fecha_Nota'] = datetime;
       attributesGestion['Nombre_apellido'] = $('#sel-sia-profesional-inco option:selected').text();
@@ -353,19 +461,10 @@ function(
       // Datos_Adjuntos: 1435
       // Estado_gestion2: null
 
-      // $('#chk-modificacion').is(':checked');
-      // $('#chk-area').is(':checked');
-      // $('#chk-no-declarada').is(':checked');
-
-      console.log('modificacion: ', $('#chk-modificacion').is(':checked'));
-      console.log('area: ', $('#chk-area').is(':checked'));
-      console.log('no-declarada: ', $('#chk-no-declarada').is(':checked'));
-
       dataSIa['attributes'] = attributes;
       data['attr_sia'] = dataSIa;
       dataGestion['attributes'] = attributesGestion
       data['attr_nota_gestion'] = dataGestion
-      
       
       console.log('data: ', data);
       deferred.resolve(data);
@@ -391,7 +490,7 @@ function(
 
       //Valido que el id de la sia no exista previamente en la capa.
       var query = '/query?returnCountOnly=true&where=SIAs_Areas_SIA_ID_Gral=\'' + id_sia_general + '\'&f=pjson';
-      this.getRequest(this.config.urlBase + this.config.urlKeySias + query).then(
+      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySias + query).then(
         lang.hitch(this, function(objRes) { 
           if (objRes.count !== 0)
           {
@@ -532,7 +631,7 @@ function(
 				}
 			);
 			return deferred.promise;
-		},
+    },
     
     postCreate: function () {
       this.inherited(arguments);
@@ -541,6 +640,63 @@ function(
 
     onOpen: function () {
       console.log('onOpen');
+      console.log('this.map: ', this.map);
+
+      var map = this.map;
+      var existenCapas = false;
+      var geom = [];
+      var html = '';
+
+      arrayUtils.forEach(map.layerIds, function(aLayerId) {
+        var gLayer = map.getLayer(aLayerId);
+        var name = gLayer.name;
+        if (name !== undefined && name.search(".kml") !== -1)
+        // if(gLayer.id !== "defaultBasemap" && gLayer.id !== "gLayerGraphic" && gLayer.name !== undefined)
+        {
+          existenCapas = true;
+          console.log('glayer layerIds: ', gLayer);
+          html += `<div class="form-check" style="margin-bottom: 8px;font-size: 13px;margin-top: 10px;">
+            <input type="checkbox" class="form-check-input" name="chk-capas-cargadas" value="${gLayer.id}" style="top: -3px;">
+            <label class="form-check-label" for="${name}">${name}</label>
+          </div>`;
+        }
+      }, this);
+
+      if(existenCapas)
+      {
+        $("#contenedor-capas-cargadas").show();
+        $("#span-capas-cargadas").html(html);
+      }
+
+      $("input[name='chk-capas-cargadas']").on('change', function() {
+        $("input[name='chk-capas-cargadas']").not(this).prop('checked', false);
+        if ($(this).is(':checked')) {
+          var LayerId = $(this).val();
+          var gLayer = map.getLayer(LayerId);
+          geom = [];
+          if(gLayer._fLayers.length > 0)
+          {
+            existenCapas = true;
+            arrayUtils.forEach(gLayer._fLayers, function(layer) {
+              map.setExtent(layer.fullExtent, true)
+              if(layer.graphics.length > 0)
+              {
+                arrayUtils.forEach(layer.graphics, function(g) {
+                  if(g.geometry.rings.length > 0 && g.geometry.rings[0].length > 0)
+                  {
+                    var geometry = webMercatorUtils.webMercatorToGeographic(g.geometry);
+                    geom.push(geometry);
+                  }
+                }, this);
+              }
+            }, this);
+          }
+          geometriesKml = geometryEngine.union(geom);
+        }else{
+          console.log('sin clic');
+          geometriesKml = {};
+        }
+      });
     },
 
     onClose: function () {
@@ -566,5 +722,3 @@ function(
     }
   });
 });
-
-

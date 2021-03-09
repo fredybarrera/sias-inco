@@ -1,5 +1,5 @@
 define({
-  "_widgetLabel": "Añadir datos",
+  "_widgetLabel": "Cargar capa KML",
   "noOptionsConfigured": "No se ha configurado ninguna opción.",
   "tabs": {
     "search": "Buscar",

@@ -42,6 +42,30 @@
                 <select class="form-control" name="" id="sel-nota-gestion-autor"></select>
               </td>
             </tr>
+            <tr id="tr-fecha-intervencion" style="display: none;">
+              <td>Fecha tentativa para inicio de intervención</td>
+              <td>
+                <input class="form-control" style="margin-top: 5px;" type="datetime-local" name="" id="Fecha_InicioIntervencion_Plan">
+              </td>
+            </tr>
+            <tr id="tr-fecha-desmovilizacion" style="display: none;">
+              <td>Fecha tentativa para desmovilización</td>
+              <td>
+                <input class="form-control" style="margin-top: 5px;" type="datetime-local" name="" id="Fecha_Desmovilizacion_Plan">
+              </td>
+            </tr>
+            <tr id="tr-fecha-real-intervencion" style="display: none;">
+              <td>Fecha real de inicio intervención</td>
+              <td>
+                <input class="form-control" style="margin-top: 5px;" type="datetime-local" name="" id="Fecha_InicioIntervencion_Real">
+              </td>
+            </tr>
+            <tr id="tr-fecha-real-desmovilizacion" style="display: none;">
+              <td>Fecha real de desmovilización</td>
+              <td>
+                <input class="form-control" style="margin-top: 5px;" type="datetime-local" name="" id="Fecha_Desmovilizacion_Real">
+              </td>
+            </tr>
             <tr>
               <td colspan="2">
                 <input type="button" class="btn btn-primary btn-sm" value="Registrar" data-dojo-attach-event="onclick:_onclickEnviar">

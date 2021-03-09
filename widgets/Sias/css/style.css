@@ -1,7 +1,7 @@
 
 div#_34_panel.jimu-panel.jimu-on-screen-widget-panel.jimu-main-background {
-	min-width: 450px !important;
-    min-height: 650px !important;
+	/* min-width: 450px !important; */
+    min-height: 500px !important;
 }
 .jimu-widget-sias {
 	position: relative;
@@ -14,8 +14,9 @@ div#_34_panel.jimu-panel.jimu-on-screen-widget-panel.jimu-main-background {
 	border: solid 1px #d9dde0;
 	border-radius: 3px;
 	/* border-bottom: solid 1px #d9dde0; */
-	padding: 3px;
+	padding: 3px 11px 10px 11p;
 	margin-bottom: 3px;
+	padding: 10px;
 }
 .jimu-widget-sias .oscurecido {
 	background-color: #efefef;
