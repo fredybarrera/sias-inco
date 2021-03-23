@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////////
+var userToken, userPortal = null;
 var VerGestion, featureLayerSias;
 var geometriesKml = {};
 define([
@@ -37,7 +38,9 @@ define([
   "esri/geometry/webMercatorUtils",
   "esri/geometry/geometryEngine",
   "esri/InfoTemplate",
-  "esri/geometry/Polygon"
+  "esri/geometry/Polygon",
+  'jimu/portalUtils',
+  'jimu/portalUrlUtils',
 ],
 function(
   declare, 
@@ -61,16 +64,20 @@ function(
   webMercatorUtils,
   geometryEngine,
   InfoTemplate,
-  Polygon){
+  Polygon,
+  portalUtils, 
+  portalUrlUtils){
   return declare(BaseWidget, {
     name: 'Ingresar nueva SIA',
     sias: null,
     geometryService: null,
     baseClass: 'jimu-widget-sias',
-
     startup: function(){
       var map = this.map;
-      var config = this.appConfig.Sias
+      var config = this.appConfig.Sias;
+
+      //Obtengo el token del usuario logueado de portal
+      this.getUserTokenPortal();
 
       // Obtengo los profesionales inco
       this.loadProfesionalesInco();
@@ -125,6 +132,13 @@ function(
       editToolbar.on("vertex-move-stop", lang.hitch(this, function(evt) {
 				// this.despliegaAreaPerimetro(evt.graphic.geometry);
 			}));
+    },
+
+    getUserTokenPortal: function () {
+      var portalUrl = portalUrlUtils.getStandardPortalUrl(this.appConfig.portalUrl);
+      var portal = portalUtils.getPortal(portalUrl);
+      userPortal = portal.user;
+      userToken = userPortal.credential.token;
     },
 
     loadLayerSias: function () {
@@ -530,7 +544,7 @@ function(
     getRequest: function (url) {
       try{
         var deferred = new Deferred();
-        fetch(url)
+        fetch(url + '&token=' + userToken)
           .then(data => data.text())
           .then((text) => {
             var data = JSON.parse(text);
@@ -554,6 +568,7 @@ function(
         let formData = new FormData();
         formData.append('f', 'json');
         formData.append('adds', data);
+        formData.append('token', userToken);
 
         let fetchData = {
             method: 'POST',

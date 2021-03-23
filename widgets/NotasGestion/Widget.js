@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////////
+var userToken, userPortal = null;
 define([
   "dojo/_base/declare", 
   "dojo/dom",
@@ -29,6 +30,8 @@ define([
   'esri/layers/GraphicsLayer',
   "esri/geometry/Polygon",
   "esri/InfoTemplate", 
+  'jimu/portalUtils',
+  'jimu/portalUrlUtils',
 ],
 function(
   declare, 
@@ -45,7 +48,10 @@ function(
   Color,
   GraphicsLayer,
   Polygon,
-  InfoTemplate){
+  InfoTemplate,
+  portalUtils, 
+  portalUrlUtils,
+  ){
   return declare(BaseWidget, {
     name: 'Notas de gestión',
     sias: null,
@@ -59,6 +65,9 @@ function(
       map.addLayer(gLayer);
 
       var html_infotemplate = this.getInfotemplate();
+
+      //Obtengo el token del usuario logueado de portal
+      this.getUserTokenPortal();
 
       // Obtengo las notas de gestión registradas
       this.loadNotasGestion();
@@ -218,6 +227,13 @@ function(
           $("#tr-fecha-real-intervencion").hide();
         }
       });//change
+    },
+
+    getUserTokenPortal: function () {
+      var portalUrl = portalUrlUtils.getStandardPortalUrl(this.appConfig.portalUrl);
+      var portal = portalUtils.getPortal(portalUrl);
+      userPortal = portal.user;
+      userToken = userPortal.credential.token;
     },
 
     loadNotasGestion: function () {
@@ -555,7 +571,7 @@ function(
     getRequest: function (url) {
       try{
         var deferred = new Deferred();
-        fetch(url)
+        fetch(url + '&token=' + userToken)
           .then(data => data.text())
           .then((text) => {
             var data = JSON.parse(text);
@@ -579,6 +595,7 @@ function(
         let formData = new FormData();
         formData.append('f', 'json');
         formData.append(type, data);
+        formData.append('token', userToken);
 
         let fetchData = {
             method: 'POST',

@@ -21,7 +21,7 @@
       "mainBackgroundColor": null
     }
   },
-  "portalUrl": "https://esricldemo.maps.arcgis.com",
+  "portalUrl": "https://gis.ingenieria.esri.cl/portal/",
   "appId": "",
   "authorizedCrossOriginDomains": [
     "mapsrv.ingenieria.esri.cl",
@@ -125,7 +125,10 @@
         "id": "_36",
         "version": "2.16",
         "closeable": true,
-        "uri": ""
+        "uri": "widgets/Mantenedores/Widget",
+        "name": "Mantenedores",
+        "label": "Mantenedores",
+        "icon": "configs\\Mantenedores\\icon__36.png"
       },
       {
         "position": {
@@ -148,7 +151,7 @@
           "top": 45,
           "relativeTo": "map"
         },
-        "placeholderIndex": 2,
+        "placeholderIndex": 1,
         "id": "_38"
       },
       {
@@ -256,7 +259,7 @@
       "right": 0,
       "bottom": 0
     },
-    "itemId": "1254ac139ecf423fbb04020bc57025a5",
+    "itemId": "835e9302e04149c4a4eb8385db2808e6",
     "mapOptions": {
       "extent": {
         "xmin": 31921783.79645875,
@@ -269,7 +272,7 @@
       }
     },
     "id": "map",
-    "portalUrl": "https://esricldemo.maps.arcgis.com/"
+    "portalUrl": "https://gis.ingenieria.esri.cl/portal/"
   },
   "widgetPool": {
     "panel": {
@@ -501,12 +504,11 @@
     }
   },
   "Sias": {
-    "urlBase": "https://gis.ingenieria.esri.cl/serversp/rest/services/AMSA_INCO/INCO_SIAS_WGS84/FeatureServer/",
+    "urlBase": "https://gis.ingenieria.esri.cl/hostpub/rest/services/INCO_SIAS_WGS84/FeatureServer/",
     "urlKeySias": "0",
     "urlKeyNotasDeGestion": "1",
     "urlKeyEstadoGestion": "2",
     "urlKeyProfesionales": "3",
-    "urlKeySolicitante": "4",
-    "geometryServiceUrl": "https://sampleserver1.arcgisonline.com/arcgis/rest/services/Geometry/GeometryServer"
+    "urlKeySolicitante": "4"
   }
 }

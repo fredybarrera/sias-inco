@@ -1,0 +1,23 @@
+<div class="jimu-widget-mantenedores">
+  <nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+      <a class="nav-item nav-link active" id="mantenedor-profesionales-tab" data-toggle="tab" href="#mantenedor-profesionales" role="tab" aria-controls="mantenedor-profesionales" aria-selected="true">Profesionales</a>
+      <a class="nav-item nav-link" id="mantenedor-solicitante-tab" data-toggle="tab" href="#mantenedor-solicitante" role="tab" aria-controls="mantenedor-solicitante" aria-selected="false">Solicitantes</a>
+      <a class="nav-item nav-link" id="estado-gestion-tab" data-toggle="tab" href="#estado-gestion" role="tab" aria-controls="estado-gestion" aria-selected="false">Estados de gestión</a>
+    </div>
+  </nav>
+  <div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade show active" id="mantenedor-profesionales" role="tabpanel" aria-labelledby="mantenedor-profesionales-tab">
+      <div id="mantenedor-lista-profesionales"></div>
+      <input type="button" class="btn btn-primary btn-sm" value="Crear" data-dojo-attach-event="onclick:_onclickCrearProfesional">
+    </div>
+    <div class="tab-pane fade" id="mantenedor-solicitante" role="tabpanel" aria-labelledby="mantenedor-solicitante-tab">
+      <div id="mantenedor-lista-solicitantes"></div>
+      <input type="button" class="btn btn-primary btn-sm" value="Crear" data-dojo-attach-event="onclick:_onclickCrearSolicitante">
+    </div>
+    <div class="tab-pane fade" id="estado-gestion" role="tabpanel" aria-labelledby="estado-gestion-tab">
+      <div id="mantenedor-lista-estados"></div>
+      <input type="button" class="btn btn-primary btn-sm" value="Crear" data-dojo-attach-event="onclick:_onclickCrearEstadoGestion">
+    </div>
+  </div>
+</div>
