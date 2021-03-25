@@ -1,0 +1,27 @@
+{
+  "showTitle": true,
+  "showBasemap": false,
+  "showLegend": true,
+  "expandAllLayersByDefault": false,
+  "contextMenu": {
+    "ZoomTo": true,
+    "Transparency": true,
+    "SetVisibilityRange": false,
+    "EnableOrDisablePopup": false,
+    "ControlLabels": false,
+    "MoveupOrMovedown": false,
+    "OpenAttributeTable": false,
+    "DescriptionOrShowItemDetailsOrDownload": false
+  },
+  "layerOptions": {
+    "INCO_SIAS_WGS84_2639_5891": {
+      "display": true
+    },
+    "INCO_AmAp_5086": {
+      "display": true
+    },
+    "INCO_SIAS_WGS84_2639_5891_9544": {
+      "display": true
+    }
+  }
+}

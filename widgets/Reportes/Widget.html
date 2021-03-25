@@ -1,0 +1,51 @@
+<div class="jimu-widget-reportes">
+  <nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+      <a class="nav-item nav-link active" id="informe-general-tab" data-toggle="tab" href="#informe-general" role="tab" aria-controls="informe-general" aria-selected="true">Informe general SIA</a>
+      <a class="nav-item nav-link" id="reporte-diario-tab" data-toggle="tab" href="#reporte-diario" role="tab" aria-controls="reporte-diario" aria-selected="false">Informe reporte diario</a>
+      <a class="nav-item nav-link" id="reporte-notas-sias-tab" data-toggle="tab" href="#reporte-notas-sias" role="tab" aria-controls="reporte-notas-sias" aria-selected="false">Reporte notas SIAs</a>
+    </div>
+  </nav>
+  <div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade show active" id="informe-general" role="tabpanel" aria-labelledby="informe-general-tab">
+      <div class="div-subtitulo">&nbsp;&nbsp;</div>
+      <div class="d-flex justify-content-center">
+        <input type="button" id="btn-descargar-informe-gral" class="btn btn-primary btn-sm" style="display: none;" value="Exportar reporte excel" data-dojo-attach-event="onclick:_onclickDescargarInformeGeneral">
+      </div>
+      <div id="div-informe-general" class="col mt-3">
+        <div id="load-informe-general">
+          <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="reporte-diario" role="tabpanel" aria-labelledby="reporte-diario-tab">
+      <div class="div-subtitulo">&nbsp;&nbsp;</div>
+      <div class="d-flex justify-content-center">
+        <input type="button" id="btn-descargar-reporte-diario" class="btn btn-primary btn-sm" style="display: none;" value="Exportar reporte excel" data-dojo-attach-event="onclick:_onclickDescargarReporteDiario">
+      </div>
+      <div id="div-reporte-diario" class="col mt-3">
+        <div id="load-reporte-diario">
+          <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="reporte-notas-sias" role="tabpanel" aria-labelledby="reporte-notas-sias-tab">
+      <div class="div-subtitulo">&nbsp;&nbsp;</div>
+      <div class="d-flex justify-content-center">
+        <input id="searchSia" name="Sias" placeholder="Ingrese SIA" class="form-control" style="width: 50%;"></input>
+      </div>
+      <div id="div-reporte-notas-sias" class="col mt-3"></div>
+      <div class="d-flex justify-content-center">
+        <input type="button" id="btn-descargar-reporte-notas-sias" class="btn btn-primary btn-sm" style="display: none;" value="Exportar reporte excel" data-dojo-attach-event="onclick:_onclickDescargarReporteSias">
+      </div>
+    </div>
+  </div>
+</div>

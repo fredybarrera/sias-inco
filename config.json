@@ -2,42 +2,32 @@
   "theme": {
     "name": "FoldableTheme",
     "styles": [
+      "yellow",
       "default",
       "black",
       "green",
       "cyan",
       "red",
       "purple",
-      "blue",
-      "yellow"
+      "blue"
     ],
     "version": "2.16",
     "sharedTheme": {
-      "useHeader": true,
-      "useLogo": true,
-      "isPortalSupport": true
+      "useHeader": false,
+      "useLogo": false,
+      "isPortalSupport": false
     },
     "customStyles": {
-      "mainBackgroundColor": null
+      "mainBackgroundColor": "#44b7e4"
     }
   },
-  "portalUrl": "https://gis.ingenieria.esri.cl/portal/",
+  "portalUrl": "https://gis.ingenieria.esri.cl/portal",
   "appId": "",
-  "authorizedCrossOriginDomains": [
-    "mapsrv.ingenieria.esri.cl",
-    "servicios.esri.cl",
-    "servicios.esri.cl",
-    "terreno.aguasandinas.cl",
-    "ide.temuco.cl",
-    "ide.temuco.cl",
-    "gisdsr.arauco.cl",
-    "smtp.ingenieria.esri.cl",
-    "ide.minagri.gob.cl"
-  ],
-  "title": "Ingresar nueva SIA",
-  "subtitle": "with Web AppBuilder for ArcGIS",
+  "authorizedCrossOriginDomains": [],
+  "title": "<div class=\"attribute-custom-style\"><font face=\"Tahoma\">Gestión de solicitudes de intervención de Área - SIAs</font></div>",
+  "subtitle": "<div class=\"attribute-custom-style\"><i><font face=\"Tahoma\">Los Pelambres - Antofagasta Minerals</font></i></div>",
   "keepAppState": true,
-  "logo": "images/app-logo.png",
+  "logo": "images/logo.png",
   "geometryService": "https://utility.arcgisonline.com/arcgis/rest/services/Geometry/GeometryServer",
   "links": [],
   "widgetOnScreen": {
@@ -127,7 +117,6 @@
         "closeable": true,
         "uri": "widgets/Mantenedores/Widget",
         "name": "Mantenedores",
-        "label": "Mantenedores",
         "icon": "configs\\Mantenedores\\icon__36.png"
       },
       {
@@ -152,7 +141,11 @@
           "relativeTo": "map"
         },
         "placeholderIndex": 1,
-        "id": "_38"
+        "id": "_38",
+        "name": "Reportes",
+        "version": "2.16",
+        "closeable": true,
+        "uri": "widgets/Reportes/Widget"
       },
       {
         "uri": "widgets/OverviewMap/Widget",
@@ -259,13 +252,13 @@
       "right": 0,
       "bottom": 0
     },
-    "itemId": "835e9302e04149c4a4eb8385db2808e6",
+    "itemId": "4744e96bee0743c4a9501eda81270ee6",
     "mapOptions": {
       "extent": {
-        "xmin": 31921783.79645875,
-        "ymin": -4425684.325198438,
-        "xmax": 31967646.0134298,
-        "ymax": -4395873.88416726,
+        "xmin": -7972822.958523302,
+        "ymin": -3776549.614641152,
+        "xmax": -7872919.762554712,
+        "ymax": -3722967.2578133154,
         "spatialReference": {
           "wkid": 102100
         }
@@ -504,11 +497,41 @@
     }
   },
   "Sias": {
-    "urlBase": "https://gis.ingenieria.esri.cl/hostpub/rest/services/INCO_SIAS_WGS84/FeatureServer/",
+    "urlBase": "https://gis.ingenieria.esri.cl/vectorpub/rest/services/AMSA_INCO/INCO_SIAS_WGS84/FeatureServer/",
     "urlKeySias": "0",
     "urlKeyNotasDeGestion": "1",
     "urlKeyEstadoGestion": "2",
     "urlKeyProfesionales": "3",
     "urlKeySolicitante": "4"
-  }
+  },
+  "statusGeneralSia": {
+    "Planificada": "Planificada",
+    "SIA emitida por EE.CC., en revisión por INCO": "En trámite",
+    "SIA en revisión por MLP": "En trámite",
+    "Revisada por MLP, devuelta a INCO": "En trámite",
+    "SIA Revisada; devuelta a EE.CC.": "En trámite",
+    "En proceso de firmas por EE.CC": "En trámite",
+    "SIA en revisión por AMSA": "En trámite",
+    "Revisada por AMSA, devuelta a INCO": "En trámite",
+    "Construcción iniciada": "Aprobada",
+    "Aprobada": "Aprobada",
+    "Desmovilizada": "Desmovilizada",
+    "Desistida": "Desistida"
+  },
+  "statusEspecificoSia": {
+    "Planificada": "Planificada",
+    "SIA emitida por EE.CC., en revisión por INCO": "SIA de 7 días o menos",
+    "SIA en revisión por MLP": "SIA de 7 días o menos",
+    "Revisada por MLP, devuelta a INCO": "SIA de 7 días o menos",
+    "SIA Revisada; devuelta a EE.CC.": "SIA de 7 días o menos",
+    "En proceso de firmas por EE.CC": "SIA de 7 días o menos",
+    "SIA en revisión por AMSA": "SIA de 7 días o menos",
+    "Revisada por AMSA, devuelta a INCO": "SIA de 7 días o menos",
+    "Construcción iniciada": "Construcción iniciada",
+    "Aprobada": "Aprobada",
+    "Desmovilizada": "Desmovilizada",
+    "Desistida": "Desistida"
+  },
+  "logoAlt": "",
+  "logoLink": ""
 }

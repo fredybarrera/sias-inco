@@ -16,6 +16,7 @@
 var userToken, userPortal = null;
 var editToolbar;
 var geometriesKmlEdit = {};
+var map, config, resetForm, getRequest, html_infotemplate, gLayer;
 define([
   'dojo/_base/declare', 
   'jimu/BaseWidget',
@@ -36,6 +37,11 @@ define([
   "esri/geometry/geometryEngine",
   'jimu/portalUtils',
   'jimu/portalUrlUtils',
+  "./store/ArcGISServerStore.js",
+  "dojo/store/Cache",
+  "dojo/store/Memory",
+  "dojo/when",
+  "dijit/form/FilteringSelect", 
 ],
 function(
   declare, 
@@ -57,17 +63,22 @@ function(
   geometryEngine,
   portalUtils, 
   portalUrlUtils,
+  ArcGISServerStore, 
+  Cache,
+  Memory, 
+  when, 
+  FilteringSelect, 
   ){
   return declare(BaseWidget, {
     name: "EditarSia",
     baseClass: 'jimu-widget-editar-sias',
     startup: function(){
-      var map = this.map;
-      var config = this.appConfig.Sias;
-      var getRequest = this.getRequest;
-      var resetForm = this.resetForm;
-      var gLayer = new GraphicsLayer({'id': 'gLayerGraphicEditarSia'});
-      var html_infotemplate = this.getInfotemplate();
+      map = this.map;
+      config = this.appConfig.Sias;
+      getRequest = this.getRequest;
+      resetForm = this.resetForm;
+      gLayer = new GraphicsLayer({'id': 'gLayerGraphicEditarSia'});
+      html_infotemplate = this.getInfotemplate();
       map.addLayer(gLayer);     
 
       //Obtengo el token del usuario logueado de portal
@@ -105,126 +116,6 @@ function(
           editingEnabled = false;
         }
       });
-
-      // gLayer.on("click", function(evt) {
-      //   event.stop(evt);
-      //   //delete feature if ctrl key is depressed
-      //   if (evt.ctrlKey === true || evt.metaKey === true) {  
-      //     editToolbar.deactivate();
-      //     gLayer.remove(evt.graphic)
-      //     editingEnabled=false;
-      //   }
-      // });
-
-      $('#sel-sia-editar-sia').change(function() {
-        let id_sia = $(this).val();
-        if(id_sia !== '-1')
-        {
-          let profesional = $(this).find(':selected').data('profesional')
-          let solicitante = $(this).find(':selected').data('solicitante')
-  
-          console.log('id_sia: ', id_sia);
-          console.log('profesional: ', profesional);
-          console.log('solicitante: ', solicitante);
-  
-          $("#sel-profesional-inco-editar-sia").val('-1');
-          $("#sel-solicitante-inco-editar-sia").val('-1');
-          $("#sel-editar-sia-Dat_SIAs_SIA_EPC").val('-1');
-  
-          gLayer.clear();
-  
-          if(profesional)
-          {
-            var query = '/query?outFields=*&where=ID_ProfesionalINCO='+profesional+'&f=pjson';
-            getRequest(config.urlBase + config.urlKeyProfesionales + query).then(
-              lang.hitch(this, function(response) { 
-                if(response.features.length > 0)
-                {
-                  console.log('response: ', response);
-                  $("#sel-profesional-inco-editar-sia").val(response.features[0].attributes.ID_ProfesionalINCO)
-                }
-              }),
-              function(objErr) {
-                console.log('request failed', objErr)
-              }
-            );
-          }
-  
-          if(solicitante)
-          {
-            var query = '/query?outFields=*&where=ID_Solicitante='+solicitante+'&f=pjson';
-            getRequest(config.urlBase + config.urlKeySolicitante + query).then(
-              lang.hitch(this, function(response) { 
-                if(response.features.length > 0)
-                {
-                  console.log('response: ', response);
-                  $("#sel-solicitante-inco-editar-sia").val(response.features[0].attributes.ID_Solicitante)
-                }
-              }),
-              function(objErr) {
-                console.log('request failed', objErr)
-              }
-            );
-          }
-  
-          var query = '/query?outFields=*&returnGeometry=true&where=SIAs_Areas_SIA_ID_Gral=\'' + id_sia + '\'&f=pjson'
-          getRequest(config.urlBase + config.urlKeySias + query).then(
-            lang.hitch(this, function(objRes) { 
-              if(objRes.features.length > 0)
-              {
-                let data = objRes.features[0].attributes
-                let geom = objRes.features[0].geometry
-                let sr = objRes.spatialReference
-  
-                var d = new Date(data.Dat_SIAs_Fecha_Solicitud)
-                var options = {  dateStyle: 'medium' };
-                var datetime = d.toLocaleString("es-CL", options);
-  
-                $("#input-editar-sia-Dat_SIAs_Id_Sistema").val(data.Dat_SIAs_Id_Sistema);
-                $("#sel-editar-sia-Dat_SIAs_SIA_EPC").val(data.Dat_SIAs_SIA_EPC);
-                $("#input-editar-sia-Dat_SIAs_SIA_ID_LOCAL").val(data.Dat_SIAs_SIA_ID_LOCAL);
-                $("#input-editar-sia-Dat_SIAs_SIA_IDE_Etiq").val(data.Dat_SIAs_SIA_IDE_Etiq);
-                $("#input-editar-sia-Dat_SIAs_SIAIDGRAL2").val(data.Dat_SIAs_SIAIDGRAL2);
-                $("#input-editar-sia-Dat_SIAs_Area_Solicitada").val(data.Dat_SIAs_Area_Solicitada);
-                $("#input-editar-sia-Dat_SIAs_Comentario").val(data.Dat_SIAs_Comentario);
-                $("#input-editar-sia-Dat_SIAs_SIA_Origen").val(data.Dat_SIAs_SIA_Origen);
-                $("#input-editar-sia-OBJECTID").val(data.OBJECTID);
-  
-                (data.Modifica_Ingenieria)?$('#chk-editar-sia-Modifica_Ingenieria').prop('checked', true):$('#chk-editar-sia-Modifica_Ingenieria').prop('checked', false);
-                (data.Modifica_Area_RCA)?$('#chk-editar-sia-Modifica_Area_RCA').prop('checked', true):$('#chk-editar-sia-Modifica_Area_RCA').prop('checked', false);
-                (data.OIA_no_descrita_RCA)?$('#chk-editar-sia-OIA_no_descrita_RCA').prop('checked', true):$('#chk-editar-sia-OIA_no_descrita_RCA').prop('checked', false);
-  
-                var sfs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
-                  new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-                  new Color([255,0,0]), 2),new Color([255,255,0,0.25])
-                );
-  
-                var attr = {
-                  "Dat_SIAs_SIA_EPC": data.Dat_SIAs_SIA_EPC,
-                  "Dat_SIAs_SIA_ID_LOCAL": data.Dat_SIAs_SIA_ID_LOCAL,
-                  "Dat_SIAs_SIA_Origen": data.Dat_SIAs_SIA_Origen,
-                  "Dat_SIAs_Fecha_Solicitud": datetime,
-                  "Dat_SIAs_Area_Solicitada": data.Dat_SIAs_Area_Solicitada,
-                  "Resgistrado_por": data.Resgistrado_por,
-                  "ID_Solicitante": data.ID_Solicitante,
-                  "SIAs_Areas_SIA_ID_Gral": data.SIAs_Areas_SIA_ID_Gral
-                };
-  
-                var infoTemplate = new InfoTemplate("SIA", html_infotemplate);
-                var polygon = new Polygon(geom);
-                var graphic = new Graphic(polygon, sfs, attr, infoTemplate);
-                gLayer.add(graphic);
-                map.setExtent(polygon.getExtent(), true);
-              }
-            }),
-            function(objErr) {
-              console.log('request failed', objErr)
-            }
-          );
-        }else{
-          resetForm();
-        }
-      });//sel-sia-editar-sia Change
     },
 
     getUserTokenPortal: function () {
@@ -244,22 +135,133 @@ function(
     },
     
     loadSias: function () {
-      var query = '/query?outFields=*&orderByFields=SIAs_Areas_SIA_ID_Gral&returnGeometry=false&where=1%3D1&f=pjson';
-      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySias + query).then(
-        lang.hitch(this, function(response) { 
-          if(response.features.length > 0)
+      // Create ArcGISServerStore
+      var agsStore = new ArcGISServerStore({
+        url: config.urlBase + config.urlKeySias,
+        flatten: true,
+        returnGeometry: true,
+        outFields: ['*'],
+        orderByFields: ['SIAs_Areas_SIA_ID_Gral']
+      });
+
+      // Cache store - Prevents extra queries for repeat "get" calls
+      var memoryStore = new Memory();
+      var store = new Cache(agsStore, memoryStore);
+
+      // Build the FilteringSelect
+      var fs = new FilteringSelect({
+        store: agsStore,
+        name: 'sias',
+        searchAttr: 'SIAs_Areas_SIA_ID_Gral',
+        placeholder: 'Buscar SIA',
+        label: 'el Label',
+        style: "display: block;width: 100%;height: calc(1.5em + .75rem + 2px);padding: .375rem .75rem;font-size: 1rem;font-weight: 400;line-height: 1.5;color: #495057;background-color: #fff;background-clip: padding-box;border: 1px solid #ced4da;border-radius: .25rem;transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;margin-top: 5px;",
+        required: false,
+        hasDownArrow: true,
+        pageSize: 15,
+        autoComplete: true,
+      }, document.getElementById('sel-sia-editar-sia'));
+
+      fs.on('change', function (newValue) {
+        when(store.get(newValue)).then(function (data) {
+          console.log('sia :', data);
+          let id_sia = data.SIAs_Areas_SIA_ID_Gral;
+          if(id_sia !== '-1')
           {
-            let html = '<option value="-1">[Seleccione]</option>';
-            html += response.features.map(function (f) {
-              return '<option value="' + f.attributes.SIAs_Areas_SIA_ID_Gral + '" data-profesional="' + f.attributes.Resgistrado_por + '" data-solicitante="' + f.attributes.ID_Solicitante + '">' + f.attributes.SIAs_Areas_SIA_ID_Gral + '</option>';
-            });
-            $('#sel-sia-editar-sia').html(html)
+            let profesional = data.Resgistrado_por;
+            let solicitante = data.ID_Solicitante;
+
+            console.log('id_sia: ', id_sia);
+            console.log('profesional: ', profesional);
+            console.log('solicitante: ', solicitante);
+
+            $("#sel-profesional-inco-editar-sia").val('-1');
+            $("#sel-solicitante-inco-editar-sia").val('-1');
+            $("#sel-editar-sia-Dat_SIAs_SIA_EPC").val('-1');
+
+            gLayer.clear();
+
+            if(profesional)
+            {
+              var query = '/query?outFields=*&where=ID_ProfesionalINCO='+profesional+'&f=pjson';
+              getRequest(config.urlBase + config.urlKeyProfesionales + query).then(
+                lang.hitch(this, function(response) { 
+                  if(response.features.length > 0)
+                  {
+                    console.log('response: ', response);
+                    $("#sel-profesional-inco-editar-sia").val(response.features[0].attributes.ID_ProfesionalINCO)
+                  }
+                }),
+                function(objErr) {
+                  console.log('request failed', objErr)
+                }
+              );
+            }
+
+            if(solicitante)
+            {
+              var query = '/query?outFields=*&where=ID_Solicitante='+solicitante+'&f=pjson';
+              getRequest(config.urlBase + config.urlKeySolicitante + query).then(
+                lang.hitch(this, function(response) { 
+                  if(response.features.length > 0)
+                  {
+                    console.log('response: ', response);
+                    $("#sel-solicitante-inco-editar-sia").val(response.features[0].attributes.ID_Solicitante)
+                  }
+                }),
+                function(objErr) {
+                  console.log('request failed', objErr)
+                }
+              );
+            }
+
+            let geom = data.geometry
+            var d = new Date(data.Dat_SIAs_Fecha_Solicitud)
+            var options = {  dateStyle: 'medium' };
+            var datetime = d.toLocaleString("es-CL", options);
+
+            $("#input-editar-sia-Dat_SIAs_Id_Sistema").val(data.Dat_SIAs_Id_Sistema);
+            $("#sel-editar-sia-Dat_SIAs_SIA_EPC").val(data.Dat_SIAs_SIA_EPC);
+            $("#input-editar-sia-Dat_SIAs_SIA_ID_LOCAL").val(data.Dat_SIAs_SIA_ID_LOCAL);
+            $("#input-editar-sia-Dat_SIAs_SIA_IDE_Etiq").val(data.Dat_SIAs_SIA_IDE_Etiq);
+            $("#input-editar-sia-Dat_SIAs_SIAIDGRAL2").val(data.Dat_SIAs_SIAIDGRAL2);
+            $("#input-editar-sia-Dat_SIAs_Area_Solicitada").val(data.Dat_SIAs_Area_Solicitada);
+            $("#input-editar-sia-Dat_SIAs_Comentario").val(data.Dat_SIAs_Comentario);
+            $("#input-editar-sia-Dat_SIAs_SIA_Origen").val(data.Dat_SIAs_SIA_Origen);
+            $("#input-editar-sia-SIAs_Areas_Area_m2").val(data.SIAs_Areas_Area_m2);
+            $("#input-editar-sia-OBJECTID").val(data.OBJECTID);
+
+            (data.Modifica_Ingenieria)?$('#chk-editar-sia-Modifica_Ingenieria').prop('checked', true):$('#chk-editar-sia-Modifica_Ingenieria').prop('checked', false);
+            (data.Modifica_Area_RCA)?$('#chk-editar-sia-Modifica_Area_RCA').prop('checked', true):$('#chk-editar-sia-Modifica_Area_RCA').prop('checked', false);
+            (data.OIA_no_descrita_RCA)?$('#chk-editar-sia-OIA_no_descrita_RCA').prop('checked', true):$('#chk-editar-sia-OIA_no_descrita_RCA').prop('checked', false);
+
+            var sfs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+              new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+              new Color([255,0,0]), 2),new Color([255,255,0,0.25])
+            );
+
+            var attr = {
+              "Dat_SIAs_SIA_EPC": data.Dat_SIAs_SIA_EPC,
+              "Dat_SIAs_SIA_ID_LOCAL": data.Dat_SIAs_SIA_ID_LOCAL,
+              "Dat_SIAs_SIA_Origen": data.Dat_SIAs_SIA_Origen,
+              "Dat_SIAs_Fecha_Solicitud": datetime,
+              "Dat_SIAs_Area_Solicitada": data.Dat_SIAs_Area_Solicitada,
+              "Resgistrado_por": data.Resgistrado_por,
+              "ID_Solicitante": data.ID_Solicitante,
+              "SIAs_Areas_SIA_ID_Gral": data.SIAs_Areas_SIA_ID_Gral
+            };
+
+            var infoTemplate = new InfoTemplate("SIA", html_infotemplate);
+            var polygon = new Polygon(geom);
+            var graphic = new Graphic(polygon, sfs, attr, infoTemplate);
+            gLayer.add(graphic);
+            map.setExtent(polygon.getExtent(), true);
+           
+          }else{
+            resetForm();
           }
-        }),
-        function(objErr) {
-          console.log('request failed', objErr)
-        }
-      );
+        });
+      });
     },
 
     loadProfesionalesInco: function () {
@@ -326,7 +328,7 @@ function(
                   featureLayerSias.refresh();
                 }
                 this.showMessage('Sia actualizada exitosamente');
-                this.resetForm();
+                // this.resetForm();
                 editToolbar.deactivate();
                 var gLayer = this.map.getLayer("gLayerGraphicEditarSia");
                 gLayer.clear();
@@ -358,7 +360,8 @@ function(
       console.log('geometriesKmlEdit: ', geometriesKmlEdit);
 
       // Valido que se elija una sia
-      var SIAs_Areas_SIA_ID_Gral = $('#sel-sia-editar-sia option:selected').val();
+      // var SIAs_Areas_SIA_ID_Gral = $('#sel-sia-editar-sia option:selected').val();
+      var SIAs_Areas_SIA_ID_Gral = $('#sel-sia-editar-sia').val();
       if (SIAs_Areas_SIA_ID_Gral == '-1' || SIAs_Areas_SIA_ID_Gral == '')
       {
         deferred.reject('Debe seleccionar una sia');
@@ -432,8 +435,6 @@ function(
         attributes['SIAs_Areas_Area_m2'] = null;
       }
 
-      // attributes['Dat_SIAs_Id_Sistema'] = $("#input-editar-sia-Dat_SIAs_Id_Sistema").val();
-      // attributes['SIAs_Areas_Area_m2'] = $("#input-editar-sia-SIAs_Areas_Area_m2").val();
       attributes['Dat_SIAs_SIA_ID_LOCAL'] = $("#input-editar-sia-Dat_SIAs_SIA_ID_LOCAL").val();
       attributes['Dat_SIAs_SIA_IDE_Etiq'] = $("#input-editar-sia-Dat_SIAs_SIA_IDE_Etiq").val();
       attributes['Dat_SIAs_SIAIDGRAL2'] = $("#input-editar-sia-Dat_SIAs_SIAIDGRAL2").val();

@@ -246,6 +246,7 @@ function(
     attributes['Teléfono_móvil'] = $("#Teléfono_móvil").val();
     attributes['Teléfono_del_trabajo'] = $("#Teléfono_del_trabajo").val();
     attributes['Nombre_apellido'] = $("#Nombres").val() + ' ' + $("#Apellidos").val();
+    attributes['Status'] = $("#Status option:selected").val();
 
     data['attributes'] = attributes;
     deferred.resolve(data);
@@ -266,6 +267,7 @@ function(
     attributes['Teléfono_móvil'] = $("#Teléfono_móvil").val();
     attributes['Teléfono_del_trabajo'] = $("#Teléfono_del_trabajo").val();
     attributes['Nombre_apellido'] = $("#Nombres").val() + ' ' + $("#Apellidos").val();
+    attributes['Status'] = $("#Status option:selected").val();
 
     data['attributes'] = attributes;
     deferred.resolve(data);
@@ -323,6 +325,8 @@ function(
             if(objRes.features.length > 0)
             {
               var profesional = objRes.features[0].attributes;
+              var activo = (profesional.Status === null || profesional.Status === 1) ? 'selected' : '';
+              var inactivo = (profesional.Status === -1 ) ? 'selected' : '';
               let content = `<div class="dijitDialogPaneContentArea">
               <table class="table table-hover table-sm">
                 <tr>
@@ -360,6 +364,15 @@ function(
                   <td><label for="desc">Teléfono trabajo: </label></td>
                   <td><input data-dojo-type="dijit/form/TextBox" type="text" name="Teléfono_del_trabajo" id="Teléfono_del_trabajo" style="width: 100%;" value="${profesional.Teléfono_del_trabajo}"></td>
                 </tr>
+                <tr>
+                  <td><label for="desc">Estado: </label></td>
+                  <td>
+                    <select name="Status" id="Status" style="width: 100%;" class="form-control">
+                      <option value="1" ${activo}>Activo</option>
+                      <option value="-1" ${inactivo}>Inactivo</option>
+                    </select>
+                  </td>
+                </tr>
               </table>
             </div>
             <div class="dijitDialogPaneActionBar">
@@ -387,6 +400,8 @@ function(
             if(objRes.features.length > 0)
             {
               var solicitante = objRes.features[0].attributes;
+              var activo = (solicitante.Status === null || solicitante.Status === 1) ? 'selected' : '';
+              var inactivo = (solicitante.Status === -1 ) ? 'selected' : '';
               let content = `<div class="dijitDialogPaneContentArea">
               <table class="table table-hover table-sm">
                 <tr>
@@ -420,6 +435,15 @@ function(
                   <td><label for="desc">Teléfono trabajo: </label></td>
                   <td><input data-dojo-type="dijit/form/TextBox" type="text" name="Teléfono_del_trabajo" id="Teléfono_del_trabajo" style="width: 100%;" value="${solicitante.Teléfono_del_trabajo}"></td>
                 </tr>
+                <tr>
+                <td><label for="desc">Estado: </label></td>
+                <td>
+                  <select name="Status" id="Status" style="width: 100%;" class="form-control">
+                    <option value="1" ${activo}>Activo</option>
+                    <option value="-1" ${inactivo}>Inactivo</option>
+                  </select>
+                </td>
+              </tr>
               </table>
             </div>
             <div class="dijitDialogPaneActionBar">
@@ -498,7 +522,8 @@ function(
           {
             let html = '<table class="table table-hover table-sm mt-3">';
             arrayUtils.forEach(response.features, function(f) {
-              html += '<tr><td>' + f.attributes.Nombre_apellido + '</td><td><button type="button" data-dojo-type="dijit/form/Button" class="btn btn-primary btn-sm profesionales" data-dojo-args="' + f.attributes.OBJECTID + '">Editar</button></td></tr>';
+              var clase = (f.attributes.Status === -1) ? 'alert-danger' : '';
+              html += '<tr class="' + clase + '"><td>' + f.attributes.Nombre_apellido + '</td><td><button type="button" data-dojo-type="dijit/form/Button" class="btn btn-primary btn-sm profesionales" data-dojo-args="' + f.attributes.OBJECTID + '">Editar</button></td></tr>';
             }, this);
             html += '</table>';
             $('#mantenedor-lista-profesionales').html(html)
@@ -518,7 +543,8 @@ function(
           {
             let html = '<table class="table table-hover table-sm mt-3">';
             arrayUtils.forEach(response.features, function(f) {
-              html += '<tr><td>' + f.attributes.Nombre_apellido + ' (' + f.attributes.Empresa + ')</td><td><button type="button" data-dojo-type="dijit/form/Button" class="btn btn-primary btn-sm solicitantes" data-dojo-args="' + f.attributes.OBJECTID  + '">Editar</button></td></tr>';
+              var clase = (f.attributes.Status === -1) ? 'alert-danger' : '';
+              html += '<tr class="' + clase + '"><td>' + f.attributes.Nombre_apellido + ' (' + f.attributes.Empresa + ')</td><td><button type="button" data-dojo-type="dijit/form/Button" class="btn btn-primary btn-sm solicitantes" data-dojo-args="' + f.attributes.OBJECTID  + '">Editar</button></td></tr>';
             }, this);
             html += '</table>'
             $('#mantenedor-lista-solicitantes').html(html)
@@ -588,6 +614,15 @@ function(
             <td><label for="desc">Teléfono trabajo: </label></td>
             <td><input data-dojo-type="dijit/form/TextBox" type="text" name="Teléfono_del_trabajo" id="Teléfono_del_trabajo" style="width: 100%;" value=""></td>
           </tr>
+          <tr>
+            <td><label for="desc">Estado: </label></td>
+            <td>
+              <select name="Status" id="Status" style="width: 100%;" class="form-control">
+                <option value="1">Activo</option>
+                <option value="-1">Inactivo</option>
+              </select>
+            </td>
+          </tr>
         </table>
       </div>
       <div class="dijitDialogPaneActionBar">
@@ -633,6 +668,15 @@ function(
           <tr>
             <td><label for="desc">Teléfono trabajo: </label></td>
             <td><input data-dojo-type="dijit/form/TextBox" type="text" name="Teléfono_del_trabajo" id="Teléfono_del_trabajo" style="width: 100%;" value=""></td>
+          </tr>
+          <tr>
+            <td><label for="desc">Estado: </label></td>
+            <td>
+              <select name="Status" id="Status" style="width: 100%;" class="form-control">
+                <option value="1">Activo</option>
+                <option value="-1">Inactivo</option>
+              </select>
+            </td>
           </tr>
         </table>
       </div>

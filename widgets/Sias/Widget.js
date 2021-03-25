@@ -16,6 +16,8 @@
 var userToken, userPortal = null;
 var VerGestion, featureLayerSias;
 var geometriesKml = {};
+var config;
+var statusGeneralSia, statusEspecificoSia;
 define([
   "dojo/_base/declare", 
   "dojo/dom",
@@ -41,6 +43,11 @@ define([
   "esri/geometry/Polygon",
   'jimu/portalUtils',
   'jimu/portalUrlUtils',
+  "./store/ArcGISServerStore.js",
+  "dojo/store/Cache",
+  "dojo/store/Memory",
+  "dojo/when",
+  "dijit/form/FilteringSelect", 
 ],
 function(
   declare, 
@@ -66,7 +73,13 @@ function(
   InfoTemplate,
   Polygon,
   portalUtils, 
-  portalUrlUtils){
+  portalUrlUtils,
+  ArcGISServerStore, 
+  Cache,
+  Memory, 
+  when, 
+  FilteringSelect, 
+  ){
   return declare(BaseWidget, {
     name: 'Ingresar nueva SIA',
     sias: null,
@@ -74,7 +87,9 @@ function(
     baseClass: 'jimu-widget-sias',
     startup: function(){
       var map = this.map;
-      var config = this.appConfig.Sias;
+      config = this.appConfig.Sias;
+      statusGeneralSia = this.appConfig.statusGeneralSia;
+      statusEspecificoSia = this.appConfig.statusEspecificoSia;
 
       //Obtengo el token del usuario logueado de portal
       this.getUserTokenPortal();
@@ -193,22 +208,38 @@ function(
     },
 
     loadSiasOrigen: function () {
-      var query = '/query?outFields=Dat_SIAs_SIAIDGRAL2&returnGeometry=false&where=1%3D1&orderByFields=Dat_SIAs_SIAIDGRAL2&f=pjson'
-      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySias + query).then(
-        lang.hitch(this, function(response) { 
-          if(response.features.length > 0)
-          {
-            let html = '<option value=""></option>';
-            html += response.features.map(function (f) {
-              return '<option value="' + f.attributes.Dat_SIAs_SIAIDGRAL2 + '">' + f.attributes.Dat_SIAs_SIAIDGRAL2 + '</option>';
-            });
-            $('#sel-nuevasia-sia-origen').html(html)
-          }
-        }),
-        function(objErr) {
-          console.log('request failed', objErr)
-        }
-      );
+      // Create ArcGISServerStore
+      var agsStore = new ArcGISServerStore({
+        url: config.urlBase + config.urlKeySias,
+        flatten: true,
+        returnGeometry: false,
+        outFields: ['*']
+      });
+
+      // Cache store - Prevents extra queries for repeat "get" calls
+      var memoryStore = new Memory();
+      var store = new Cache(agsStore, memoryStore);
+
+      // Build the FilteringSelect
+      var fs = new FilteringSelect({
+        store: agsStore,
+        name: 'sias',
+        searchAttr: 'Dat_SIAs_SIAIDGRAL2',
+        placeholder: 'Buscar SIA origen',
+        label: 'el Label',
+        style: "display: block;width: 100%;height: calc(1.5em + .75rem + 2px);padding: .375rem .75rem;font-size: 1rem;font-weight: 400;line-height: 1.5;color: #495057;background-color: #fff;background-clip: padding-box;border: 1px solid #ced4da;border-radius: .25rem;transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;margin-top: 5px;",
+        required: false,
+        hasDownArrow: true,
+        pageSize: 15,
+        autoComplete: true,
+      }, document.getElementById('sel-nuevasia-sia-origen'));
+
+
+      fs.on('change', function (newValue) {
+        when(store.get(newValue)).then(function (sia) {
+          console.log('sia :', sia);
+        });
+      });
     },
 
     loadEstadosGestion: function () {
@@ -278,7 +309,7 @@ function(
 
     _onclickEnviar: function () {
       this.getData().then(
-        lang.hitch(this, function(data) { 
+        lang.hitch(this, function(data) {
           let geom = data.attr_sia['geometry'];
           var polygon = new Polygon(geom);
           this.validaIdSia().then(
@@ -420,8 +451,8 @@ function(
         attributes['Dat_SIAs_SIA_IDE_Etiq'] = sia_etiqueta.trim();
       }
 
-      attributes['Dat_SIAs_SIA_Origen'] = $('#sel-nuevasia-sia-origen option:selected').val();
-
+      // attributes['Dat_SIAs_SIA_Origen'] = $('#sel-nuevasia-sia-origen option:selected').val();
+      attributes['Dat_SIAs_SIA_Origen'] = $('#sel-nuevasia-sia-origen').val();
 
       //Valido que ingrese un area solicitada
       var areaSol = $('#txta-sia-area-sol').val()
@@ -442,10 +473,20 @@ function(
       } else {
         attributesGestion['Estado_gestion'] = estado_gestion;
         attributes['Dat_SIAs_Estados_Gestion'] = estado_gestion;
+
+        // Estatus de la última Nota de Gestión -> Dat_SIAs_Estados_Gestion 
+        // Estatus general de la SIA -> Estatus_general 
+        // Estatus específico de la SIA -> Dat_SIAs_Estado2 
+        attributes['Estatus_general'] = statusGeneralSia[estado_gestion];
+        attributes['Dat_SIAs_Estado2'] = statusEspecificoSia[estado_gestion];
       }
 
+      // console.log('statusGeneralSia: ', statusGeneralSia);
+      // console.log('statusEspecificoSia: ', statusEspecificoSia);
+
+
       //Valido que ingrese un comentario en el estado de la gestion actual
-      var comentario = $('#txta-sia-comentario').val();
+      var comentario = $('#txta-sia-gestion-comentario').val();
       if (comentario == '')
       {
         deferred.reject('Debe ingresar comentario en el estado de la gestion actual');
@@ -453,6 +494,14 @@ function(
         attributesGestion['Comentario'] = comentario;
       }
 
+      var comentarioSia = $('#txta-sia-comentario').val();
+      attributes['Dat_SIAs_Comentario'] = comentarioSia;
+
+      var SIAs_Areas_Area_m2 = $("#input-sia-SIAs_Areas_Area_m2").val();
+      if(SIAs_Areas_Area_m2 !== '')
+      {
+        attributes['SIAs_Areas_Area_m2'] = parseInt(SIAs_Areas_Area_m2);
+      }
 
       // “Modifica_Ingenieria”, “Modifica_Area_RCA” y “Describe_Cambio_RCA”.
 

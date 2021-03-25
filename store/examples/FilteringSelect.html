@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+		<title>arcgis-server-store</title>
+		<link rel="stylesheet" href="https://js.arcgis.com/3.35/esri/css/esri.css">
+		<link rel="stylesheet" href="https://js.arcgis.com/3.35/dijit/themes/claro/claro.css">
+	</head>
+	<body class="claro">
+		<label for="states">States:</label>
+		<input id="filteringSelect" name="roles"></input>
+		<div id="output"></div>
+		<script>
+			var dojoConfig = {
+				async: true,
+				packages: [{
+					name: 'store',
+					location: location.pathname.substring(0, location.pathname.lastIndexOf('/')) + '/../'
+				}]
+			};
+		</script>
+		<script src="https://js.arcgis.com/3.35/"></script>
+		<script>
+			require([
+				'store/ArcGISServerStore',
+
+				'dojo/store/Cache',
+				'dojo/store/Memory',
+				'dojo/when',
+
+				'dijit/form/FilteringSelect'
+			], function(
+				ArcGISServerStore,
+				Cache, Memory, when,
+				FilteringSelect
+			) {
+
+				// Create ArcGISServerStore
+				var agsStore = new ArcGISServerStore({
+					url: 'https://services1.arcgis.com/r4FoIXzLvYu9NaUM/ArcGIS/rest/services/Municipalidad_de_Las_Condes_v3/FeatureServer/9',
+					flatten: true,
+					returnGeometry: false,
+					outFields: ['ROL_2020', 'OBJECTID','CODIGO']
+				});
+
+				// Cache store - Prevents extra queries for repeat "get" calls
+				var memoryStore = new Memory();
+				var store = new Cache(agsStore, memoryStore);
+
+				// Build the FilteringSelect
+				var fs = new FilteringSelect({
+					store: store,
+					name: 'roles',
+					searchAttr: 'ROL_2020'
+				}, 'filteringSelect');
+
+				// Display selection
+				var output = document.getElementById('output');
+				fs.on('change', function(newValue) {
+					when(store.get(newValue)).then(function(roles) {
+						output.innerHTML += '<div>' + roles.ROL_2020 + ' id ' + roles.CODIGO + ' ...';
+					});
+				});
+			});
+		</script>
+	</body>
+</html>
