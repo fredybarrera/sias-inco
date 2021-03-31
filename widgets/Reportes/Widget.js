@@ -125,21 +125,20 @@ function(
               $("#btn-descargar-reporte-notas-sias").show();
               var html = '<table class="table table-hover table-sm"><thead class="thead-light">';
               html += '<tr>';
-              html += '<th scope="col">SIA</th>';
-              html += '<th scope="col">Área solicitada</th>';
               html += '<th scope="col">Fecha de nota</th>';
               html += '<th scope="col">Estado gestión</th>';
               html += '<th scope="col">Comentario</th>';
               html += '<th scope="col">Nota ingresada por</th>';
               html += '</tr></thead><tbody>';
               arrayUtils.forEach(response.features, function(f) {
-                dataReporteSia.push(f.attributes);
+                var area = (f.attributes.Area_Solicitada)?f.attributes.Area_Solicitada:'';
+                $("#txt-area-solicitada-reporte-notas-sias").html('<b>Area solicitada</b>: ' + area);
                 let fechaSolicitud = new Date(f.attributes.Fecha_Nota);
                 let options = {  dateStyle: 'medium' };
                 let datetimefechaSolicitud = fechaSolicitud.toLocaleString("es-CL", options);
+                f.attributes.Fecha_Nota = datetimefechaSolicitud;
+                dataReporteSia.push(f.attributes);
                 html += '<tr>';
-                html += '<td scope="row">' + f.attributes.SIAIDGRAL2 + '</td>';
-                html += '<td scope="row">' + f.attributes.Area_Solicitada + '</td>';
                 html += '<td scope="row">' + datetimefechaSolicitud + '</td>';
                 html += '<td scope="row">' + f.attributes.Estado_gestion + '</td>';
                 html += '<td scope="row">' + f.attributes.Comentario + '</td>';
@@ -175,13 +174,13 @@ function(
             html += '</tr></thead><tbody>';
 
             arrayUtils.forEach(response.features, function(f) {
-              dataReporteDiario.push(f.attributes);
               let fechaActual = new Date();
               let fechaSolicitud = new Date(f.attributes.Dat_SIAs_Fecha_Solicitud);
               let fechaAprobada = new Date(f.attributes.Dat_SIAs_Fecha_Aprobada);
-              let diff, datetimefechaAprobada;
+              let diff;
               let options = {  dateStyle: 'medium' };
               let diasGestion = 0;
+              var datetimefechaAprobada;
 
               if (typeof f.attributes.Dat_SIAs_Fecha_Aprobada === 'object' && f.attributes.Dat_SIAs_Fecha_Aprobada === null)
               {
@@ -192,8 +191,12 @@ function(
                 datetimefechaAprobada = fechaAprobada.toLocaleString("es-CL", options);
               }
               
-              let datetimefechaSolicitud = fechaSolicitud.toLocaleString("es-CL", options);
+              var datetimefechaSolicitud = fechaSolicitud.toLocaleString("es-CL", options);
               diasGestion = parseInt((diff)/(24*3600*1000));
+
+              f.attributes.Dat_SIAs_Fecha_Solicitud = datetimefechaSolicitud;
+              f.attributes.Dat_SIAs_Fecha_Aprobada = datetimefechaAprobada;
+              dataReporteDiario.push(f.attributes);
               
               let color = '';
               color2 = 'black';
@@ -258,14 +261,14 @@ function(
             html += '</tr></thead><tbody>';
 
             arrayUtils.forEach(response.features, function(f) {
-              data.push(f.attributes);
               let fechaActual = new Date();
               let fechaSolicitud = new Date(f.attributes.Dat_SIAs_Fecha_Solicitud);
               let fechaAprobada = new Date(f.attributes.Dat_SIAs_Fecha_Aprobada);
-              let diff, datetimefechaAprobada;
+              let diff;
               let options = {  dateStyle: 'medium' };
               let diasGestion = 0;
-
+              var datetimefechaAprobada;
+              
               if (typeof f.attributes.Dat_SIAs_Fecha_Aprobada === 'object' && f.attributes.Dat_SIAs_Fecha_Aprobada === null)
               {
                 diff = new Date(fechaActual.getTime() - fechaSolicitud.getTime());
@@ -275,8 +278,12 @@ function(
                 datetimefechaAprobada = fechaAprobada.toLocaleString("es-CL", options);
               }
               
-              let datetimefechaSolicitud = fechaSolicitud.toLocaleString("es-CL", options);
+              var datetimefechaSolicitud = fechaSolicitud.toLocaleString("es-CL", options);
               diasGestion = parseInt((diff)/(24*3600*1000));
+              
+              f.attributes.Dat_SIAs_Fecha_Solicitud = datetimefechaSolicitud;
+              f.attributes.Dat_SIAs_Fecha_Aprobada = datetimefechaAprobada;
+              data.push(f.attributes);
               
               let color = '';
               color2 = 'black';

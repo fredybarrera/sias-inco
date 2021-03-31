@@ -435,10 +435,17 @@ function(
         attributes['SIAs_Areas_Area_m2'] = null;
       }
 
+      var Dat_SIAs_Area_Solicitada = $("#input-editar-sia-Dat_SIAs_Area_Solicitada").val();
+      if(Dat_SIAs_Area_Solicitada !== '')
+      {
+        attributes['Dat_SIAs_Area_Solicitada'] = Dat_SIAs_Area_Solicitada;
+      }else{
+        deferred.reject('Debe ingresar una área solicitada');
+      }
+
       attributes['Dat_SIAs_SIA_ID_LOCAL'] = $("#input-editar-sia-Dat_SIAs_SIA_ID_LOCAL").val();
       attributes['Dat_SIAs_SIA_IDE_Etiq'] = $("#input-editar-sia-Dat_SIAs_SIA_IDE_Etiq").val();
       attributes['Dat_SIAs_SIAIDGRAL2'] = $("#input-editar-sia-Dat_SIAs_SIAIDGRAL2").val();
-      attributes['Dat_SIAs_Area_Solicitada'] = $("#input-editar-sia-Dat_SIAs_Area_Solicitada").val();
       attributes['Dat_SIAs_Comentario'] = $("#input-editar-sia-Dat_SIAs_Comentario").val();
       attributes['Dat_SIAs_SIA_Origen'] = $("#input-editar-sia-Dat_SIAs_SIA_Origen").val();
       attributes['OBJECTID'] = parseInt($("#input-editar-sia-OBJECTID").val());

@@ -170,7 +170,7 @@ function(
     },
 
     loadProfesionalesInco: function () {
-      var query = '/query?outFields=*&returnGeometry=true&where=1%3D1&orderByFields=Apellidos&f=pjson'
+      var query = '/query?outFields=*&returnGeometry=true&where=Status<>-1&orderByFields=Apellidos&f=pjson'
       this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyProfesionales + query).then(
         lang.hitch(this, function(response) { 
           if(response.features.length > 0)
@@ -189,7 +189,7 @@ function(
     },
 
     loadSolicitantesInco: function () {
-      var query = '/query?outFields=*&returnGeometry=true&where=1%3D1&orderByFields=Apellidos&f=pjson'
+      var query = '/query?outFields=*&returnGeometry=true&where=Status<>-1&orderByFields=Apellidos&f=pjson'
       this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySolicitante + query).then(
         lang.hitch(this, function(response) { 
           if(response.features.length > 0)
@@ -430,7 +430,7 @@ function(
 
       if (fechaSolicitud == '')
       {
-        deferred.reject('Debe seleccionar una fecha de solicitud')
+        deferred.reject('Debe seleccionar una fecha de solicitud');
       } else {
         attributes['Dat_SIAs_Fecha_Solicitud'] = datetime;
       }
@@ -451,9 +451,6 @@ function(
         attributes['Dat_SIAs_SIA_IDE_Etiq'] = sia_etiqueta.trim();
       }
 
-      // attributes['Dat_SIAs_SIA_Origen'] = $('#sel-nuevasia-sia-origen option:selected').val();
-      attributes['Dat_SIAs_SIA_Origen'] = $('#sel-nuevasia-sia-origen').val();
-
       //Valido que ingrese un area solicitada
       var areaSol = $('#txta-sia-area-sol').val()
       if (areaSol == '')
@@ -463,6 +460,14 @@ function(
         attributes['Dat_SIAs_Area_Solicitada'] = areaSol
       }
 
+      //Valido que se selccione una sia de origen
+      var sia_origen = $('#sel-nuevasia-sia-origen').val()
+      if (sia_origen == '-1' || sia_origen == '')
+      {
+        deferred.reject('Debe seleccionar una sia de origen');
+      } else {
+        attributes['Dat_SIAs_SIA_Origen'] = sia_origen
+      }
 
       // Nota de gestion
       //Valido que ingrese un estado de gestión
@@ -484,24 +489,14 @@ function(
       // console.log('statusGeneralSia: ', statusGeneralSia);
       // console.log('statusEspecificoSia: ', statusEspecificoSia);
 
+      // var comentarioSia = $('#txta-sia-comentario').val();
+      // attributes['Dat_SIAs_Comentario'] = comentarioSia;
 
-      //Valido que ingrese un comentario en el estado de la gestion actual
-      var comentario = $('#txta-sia-gestion-comentario').val();
-      if (comentario == '')
-      {
-        deferred.reject('Debe ingresar comentario en el estado de la gestion actual');
-      } else {
-        attributesGestion['Comentario'] = comentario;
-      }
-
-      var comentarioSia = $('#txta-sia-comentario').val();
-      attributes['Dat_SIAs_Comentario'] = comentarioSia;
-
-      var SIAs_Areas_Area_m2 = $("#input-sia-SIAs_Areas_Area_m2").val();
-      if(SIAs_Areas_Area_m2 !== '')
-      {
-        attributes['SIAs_Areas_Area_m2'] = parseInt(SIAs_Areas_Area_m2);
-      }
+      // var SIAs_Areas_Area_m2 = $("#input-sia-SIAs_Areas_Area_m2").val();
+      // if(SIAs_Areas_Area_m2 !== '')
+      // {
+      //   attributes['SIAs_Areas_Area_m2'] = parseInt(SIAs_Areas_Area_m2);
+      // }
 
       // “Modifica_Ingenieria”, “Modifica_Area_RCA” y “Describe_Cambio_RCA”.
 
@@ -512,7 +507,10 @@ function(
       attributes['Modifica_Ingenieria'] = ($('#chk-modificacion').is(':checked')) ? 1 : 0;
       attributes['Modifica_Area_RCA'] = ($('#chk-area').is(':checked')) ? 1 : 0;
       attributes['OIA_no_descrita_RCA'] = ($('#chk-no-declarada').is(':checked')) ? 1 : 0;
-
+      
+      
+      var comentario = $('#txta-sia-gestion-comentario').val();
+      attributesGestion['Comentario'] = comentario;
       attributesGestion['SIAIDGRAL2'] = id_sia_general;
       attributesGestion['Fecha_Nota'] = datetime;
       attributesGestion['Nombre_apellido'] = $('#sel-sia-profesional-inco option:selected').text();
