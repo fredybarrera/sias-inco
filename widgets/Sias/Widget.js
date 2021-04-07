@@ -13,7 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////////
-var userToken, userPortal = null;
+var userToken = null;
+var userPortal = null;
 var VerGestion, featureLayerSias;
 var geometriesKml = {};
 var config;
@@ -48,6 +49,8 @@ define([
   "dojo/store/Memory",
   "dojo/when",
   "dijit/form/FilteringSelect", 
+  'esri/tasks/query',
+	'esri/tasks/QueryTask',
 ],
 function(
   declare, 
@@ -79,6 +82,8 @@ function(
   Memory, 
   when, 
   FilteringSelect, 
+  Query,
+	QueryTask,
   ){
   return declare(BaseWidget, {
     name: 'Ingresar nueva SIA',
@@ -155,10 +160,13 @@ function(
       console.log('portalUrl: ', portalUrl);
       var portal = portalUtils.getPortal(portalUrl);
       console.log('portal: ', portal);
-      userPortal = portal.user;
-      console.log('userPortal: ', userPortal);
-      userToken = userPortal.credential.token;
-      console.log('userPortal: ', userPortal);
+      if(portal.user !== null)
+      {
+        userPortal = portal.user;
+        console.log('userPortal: ', userPortal);
+        userToken = userPortal.credential.token;
+        console.log('userPortal: ', userPortal);
+      }
     },
 
     loadLayerSias: function () {
@@ -175,13 +183,17 @@ function(
     },
 
     loadProfesionalesInco: function () {
-      var query = '/query?outFields=*&returnGeometry=true&where=Status<>-1&orderByFields=Apellidos&f=pjson'
-      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyProfesionales + query).then(
+      var url = this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyProfesionales;
+      var query = new Query();
+      query.orderByFields = ["Apellidos"];
+      query.outFields = ["*"];
+      query.where = "Status<>-1";
+      this.getRequest(url, query).then(
         lang.hitch(this, function(response) { 
-          if(response.features.length > 0)
+          if(response.featureSet.features.length > 0)
           {
             var html = '<option value="-1">[Seleccione]</option>';
-            html += response.features.map(function (f) {
+            html += response.featureSet.features.map(function (f) {
               return '<option value="' + f.attributes.ID_ProfesionalINCO + '">' + f.attributes.Nombre_apellido + '</option>';
             });
             $('#sel-sia-profesional-inco').html(html)
@@ -194,13 +206,17 @@ function(
     },
 
     loadSolicitantesInco: function () {
-      var query = '/query?outFields=*&returnGeometry=true&where=Status<>-1&orderByFields=Apellidos&f=pjson'
-      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySolicitante + query).then(
+      var url = this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySolicitante;
+      var query = new Query();
+      query.orderByFields = ["Apellidos"];
+      query.outFields = ["*"];
+      query.where = "Status<>-1";
+      this.getRequest(url, query).then(
         lang.hitch(this, function(response) { 
-          if(response.features.length > 0)
+          if(response.featureSet.features.length > 0)
           {
             let html = '<option value="-1">[Seleccione]</option>';
-            html += response.features.map(function (f) {
+            html += response.featureSet.features.map(function (f) {
               return '<option value="' + f.attributes.ID_Solicitante + '">[' + f.attributes.Empresa + '] ' + f.attributes.Apellidos + ', ' + f.attributes.Nombres + '</option>';
             });
             $('#sel-sia-solicitante-inco').html(html)
@@ -249,12 +265,17 @@ function(
 
     loadEstadosGestion: function () {
       var query = '/query?outFields=*&where=1%3D1&f=pjson';
-      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyEstadoGestion + query).then(
+      var url = this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyEstadoGestion;
+      var query = new Query();
+      query.orderByFields = ["Estados_Gestion"];
+      query.outFields = ["*"];
+      query.where = "1=1";
+      this.getRequest(url, query).then(
         lang.hitch(this, function(response) { 
-          if(response.features.length > 0)
+          if(response.featureSet.features.length > 0)
           {
             let html = '<option value="-1">[Seleccione]</option>';
-            html += response.features.map(function (f) {
+            html += response.featureSet.features.map(function (f) {
               return '<option value="' + f.attributes.Estados_Gestion + '">' + f.attributes.Estados_Gestion + '</option>';
             });
             $('#sel-sia-estado_gestion').html(html)
@@ -555,10 +576,16 @@ function(
       console.log('id_sia_general: ', id_sia_general);
 
       //Valido que el id de la sia no exista previamente en la capa.
-      var query = '/query?returnCountOnly=true&where=SIAs_Areas_SIA_ID_Gral=\'' + id_sia_general + '\'&f=pjson';
-      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySias + query).then(
-        lang.hitch(this, function(objRes) { 
-          if (objRes.count !== 0)
+      // var query = '/query?returnCountOnly=true&where=SIAs_Areas_SIA_ID_Gral=\'' + id_sia_general + '\'&f=pjson';
+      var url = this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySias;
+
+      var query = new Query();
+      query.where = "SIAs_Areas_SIA_ID_Gral=\'" + id_sia_general + "\'";
+      query.outFields = ["*"];
+
+      this.getRequest(url, query).then(
+        lang.hitch(this, function(response) { 
+          if (response.featureSet.features.length > 0)
           {
             console.log('reject')
             deferred.reject('Ya existe una sia con el ID ' + id_sia_general);
@@ -593,7 +620,28 @@ function(
       });
     },
 
-    getRequest: function (url) {
+    getRequest: function (url, query) {
+      try{
+        var deferred = new Deferred();
+        var queryTask = new QueryTask(url);
+        
+        queryTask.execute(query);
+        queryTask.on("complete", function(response){
+          console.log('complete response: ', response)
+          deferred.resolve(response);
+        });
+        queryTask.on("error", function(error){
+          console.log('error: ', error)
+          deferred.reject();
+        });
+      } catch(err) {
+          console.log('request failed', err)
+        deferred.reject();
+      }
+      return deferred.promise;
+    },
+
+    getRequest_old: function (url) {
       try{
         var deferred = new Deferred();
         fetch(url + '&token=' + userToken)
@@ -620,7 +668,10 @@ function(
         let formData = new FormData();
         formData.append('f', 'json');
         formData.append('adds', data);
-        formData.append('token', userToken);
+        if(userToken !== null)
+        {
+          formData.append('token', userToken);
+        }
 
         let fetchData = {
             method: 'POST',
