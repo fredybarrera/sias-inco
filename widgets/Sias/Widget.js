@@ -151,9 +151,14 @@ function(
 
     getUserTokenPortal: function () {
       var portalUrl = portalUrlUtils.getStandardPortalUrl(this.appConfig.portalUrl);
+      console.log('this.appConfig.portalUrl: ', this.appConfig.portalUrl);
+      console.log('portalUrl: ', portalUrl);
       var portal = portalUtils.getPortal(portalUrl);
+      console.log('portal: ', portal);
       userPortal = portal.user;
+      console.log('userPortal: ', userPortal);
       userToken = userPortal.credential.token;
+      console.log('userPortal: ', userPortal);
     },
 
     loadLayerSias: function () {
