@@ -13,7 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////////
-var userToken, userPortal = null;
+var userToken = null;
+var userPortal = null;
 var map, message, config, getRequest, html_infotemplate, gLayer, fs;
 var getHistorialSia, getUltimaGestion;
 var statusGeneralSia, statusEspecificoSia;
@@ -40,6 +41,8 @@ define([
   "dojo/store/Memory",
   "dojo/when",
   "dijit/form/FilteringSelect", 
+  'esri/tasks/query',
+	'esri/tasks/QueryTask',
 ],
 function(
   declare, 
@@ -64,6 +67,8 @@ function(
   Memory, 
   when, 
   FilteringSelect, 
+  Query,
+	QueryTask,
   ){
   return declare(BaseWidget, {
     name: 'Notas de gestión',
@@ -127,8 +132,11 @@ function(
     getUserTokenPortal: function () {
       var portalUrl = portalUrlUtils.getStandardPortalUrl(this.appConfig.portalUrl);
       var portal = portalUtils.getPortal(portalUrl);
-      userPortal = portal.user;
-      userToken = userPortal.credential.token;
+      if(portal.user !== null)
+      {
+        userPortal = portal.user;
+        userToken = userPortal.credential.token;
+      }
     },
 
     loadSias: function () {
@@ -217,12 +225,17 @@ function(
     },
 
     getUltimaGestion: function (id_sia) {
-      var query = '/query?outFields=*&orderByFields=Fecha_Nota+desc&where=SIAIDGRAL2=\'' + id_sia + '\'&resultOffset=0&resultRecordCount=1&f=pjson';
-      getRequest(config.urlBase + config.urlKeyNotasDeGestion + query).then(
-        lang.hitch(this, function(objRes) { 
-          if(objRes.features.length > 0)
+      // var query = '/query?outFields=*&orderByFields=Fecha_Nota+desc&where=SIAIDGRAL2=\'' + id_sia + '\'&resultOffset=0&resultRecordCount=1&f=pjson';
+      var url = config.urlBase + config.urlKeyNotasDeGestion;
+      var query = new Query();
+      query.outFields = ["*"];
+      query.orderByFields = ['Fecha_Nota desc']
+      query.where = 'SIAIDGRAL2=\'' + id_sia + '\'';
+      getRequest(url, query).then(
+        lang.hitch(this, function(response) { 
+          if(response.featureSet.features.length > 0)
           {
-            var data = objRes.features[0].attributes
+            var data = response.featureSet.features[0].attributes
             var d = new Date(data.Fecha_Nota)
             var options = {  dateStyle: 'medium' };
             var datetime = d.toLocaleString("es-CL", options);
@@ -239,11 +252,15 @@ function(
     },
 
     getHistorialSia: function (id_sia) {
-      console.log('getHistorialSia: ', id_sia);
-       var query = '/query?outFields=*&orderByFields=Fecha_Nota+desc&where=SIAIDGRAL2=\'' + id_sia + '\'&f=pjson';
-       getRequest(config.urlBase + config.urlKeyNotasDeGestion + query).then(
-         lang.hitch(this, function(objRes) { 
-           if(objRes.features.length > 0)
+      // var query = '/query?outFields=*&orderByFields=Fecha_Nota+desc&where=SIAIDGRAL2=\'' + id_sia + '\'&f=pjson';
+      var url = config.urlBase + config.urlKeyNotasDeGestion;
+      var query = new Query();
+      query.outFields = ["*"];
+      query.orderByFields = ['Fecha_Nota desc']
+      query.where = 'SIAIDGRAL2=\'' + id_sia + '\'';
+       getRequest(url, query).then(
+         lang.hitch(this, function(response) { 
+           if(response.featureSet.features.length > 0)
            {
              let html = '<table class="table table-hover">';
              html += '<thead>';
@@ -256,7 +273,7 @@ function(
              html += '</tr>';
              html += '</thead>';
              html += '<tbody>';
-             arrayUtils.forEach(objRes.features, function(f) {
+             arrayUtils.forEach(response.featureSet.features, function(f) {
                var d = new Date(f.attributes.Fecha_Nota)
                // var options = { year: '2-digit', month: '2-digit', day: '2-digit' };
                var options = {  dateStyle: 'medium' };
@@ -282,13 +299,18 @@ function(
     },
 
     loadEstadosGestion: function () {
-      var query = '/query?outFields=*&&orderByFields=Estados_Gestion&where=1%3D1&f=pjson';
-      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyEstadoGestion + query).then(
+      // var query = '/query?outFields=*&&orderByFields=Estados_Gestion&where=1%3D1&f=pjson';
+      var url = this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyEstadoGestion;
+      var query = new Query();
+      query.outFields = ["*"];
+      query.orderByFields = ['Estados_Gestion']
+      query.where = '1=1';
+      this.getRequest(url, query).then(
         lang.hitch(this, function(response) { 
-          if(response.features.length > 0)
+          if(response.featureSet.features.length > 0)
           {
             let html = '<option value="-1">[Seleccione]</option>';
-            html += response.features.map(function (f) {
+            html += response.featureSet.features.map(function (f) {
               return '<option value="' + f.attributes.Estados_Gestion + '">' + f.attributes.Estados_Gestion + '</option>';
             });
             $('#sel-nota-gestion-estado-sia').html(html)
@@ -301,13 +323,18 @@ function(
     },
 
     loadProfesionalesInco: function () {
-      var query = '/query?outFields=*&where=1%3D1&f=pjson';
-      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyProfesionales + query).then(
+      // var query = '/query?outFields=*&where=1%3D1&f=pjson';
+      var url = this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyProfesionales;
+      var query = new Query();
+      query.outFields = ["*"];
+      query.orderByFields = ['Apellidos']
+      query.where = '1=1';
+      this.getRequest(url, query).then(
         lang.hitch(this, function(response) { 
-          if(response.features.length > 0)
+          if(response.featureSet.features.length > 0)
           {
             let html = '<option value="-1">[Seleccione]</option>';
-            html += response.features.map(function (f) {
+            html += response.featureSet.features.map(function (f) {
               return '<option value="' + f.attributes.Nombre_apellido + '">' + f.attributes.Nombre_apellido + '</option>';
             });
             $('#sel-nota-gestion-autor').html(html)
@@ -641,7 +668,28 @@ function(
       });
     },
 
-    getRequest: function (url) {
+    getRequest: function (url, query) {
+      try{
+        var deferred = new Deferred();
+        var queryTask = new QueryTask(url);
+        
+        queryTask.execute(query);
+        queryTask.on("complete", function(response){
+          console.log('complete response: ', response)
+          deferred.resolve(response);
+        });
+        queryTask.on("error", function(error){
+          console.log('error: ', error)
+          deferred.reject();
+        });
+      } catch(err) {
+          console.log('request failed', err)
+        deferred.reject();
+      }
+      return deferred.promise;
+    },
+
+    getRequest_old: function (url) {
       try{
         var deferred = new Deferred();
         fetch(url + '&token=' + userToken)
@@ -668,7 +716,10 @@ function(
         let formData = new FormData();
         formData.append('f', 'json');
         formData.append(type, data);
-        formData.append('token', userToken);
+        if(userToken !== null)
+        {
+          formData.append('token', userToken);
+        }
 
         let fetchData = {
             method: 'POST',
