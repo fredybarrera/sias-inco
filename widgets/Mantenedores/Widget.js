@@ -13,7 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////////
-var userToken, userPortal = null;
+var userToken = null;
+var userPortal = null;
 var tabla = null;
 var appConfig, getRequest, postRequest, showMessage, getProfesionales;
 define([
@@ -28,6 +29,8 @@ define([
   'jimu/portalUrlUtils',
   "dojo/dom", 
   "dojo/on", 
+  'esri/tasks/query',
+	'esri/tasks/QueryTask',
   "dojo/query!css2", 
   "dojo/domReady!"
 ],
@@ -43,6 +46,8 @@ function(
   portalUrlUtils,
   dom, 
   on, 
+  Query,
+	QueryTask,
   ){
   var myDialog;
 
@@ -54,13 +59,13 @@ function(
           console.log('data: ', data);
           var strData = JSON.stringify([data])
           postRequest(appConfig.Sias.urlBase + appConfig.Sias.urlKeyProfesionales + '/applyEdits', strData, 'adds').then(
-            lang.hitch(this, function(objRes) { 
-              if (objRes.addResults[0].success === true)
+            lang.hitch(this, function(response) { 
+              if (response.addResults[0].success === true)
               {
                 getProfesionales();
                 showMessage('Profesional creado exitosamente');
               } else {
-                msg = objRes.addResults[0].error.description
+                msg = response.addResults[0].error.description
                 showMessage('Error al enviar la información: ' + msg, 'error')
               }
             }),
@@ -83,13 +88,13 @@ function(
           console.log('data: ', data);
           var strData = JSON.stringify([data])
           postRequest(appConfig.Sias.urlBase + appConfig.Sias.urlKeySolicitante + '/applyEdits', strData, 'adds').then(
-            lang.hitch(this, function(objRes) { 
-              if (objRes.addResults[0].success === true)
+            lang.hitch(this, function(response) { 
+              if (response.addResults[0].success === true)
               {
                 getSolicitantes();
                 showMessage('Solicitante creado exitosamente');
               } else {
-                msg = objRes.addResults[0].error.description
+                msg = response.addResults[0].error.description
                 showMessage('Error al enviar la información: ' + msg, 'error')
               }
             }),
@@ -111,13 +116,13 @@ function(
           console.log('data: ', data);
           var strData = JSON.stringify([data])
           postRequest(appConfig.Sias.urlBase + appConfig.Sias.urlKeyEstadoGestion + '/applyEdits', strData, 'adds').then(
-            lang.hitch(this, function(objRes) { 
-              if (objRes.addResults[0].success === true)
+            lang.hitch(this, function(response) { 
+              if (response.addResults[0].success === true)
               {
                 getEstadosGestion();
                 showMessage('Estado creado exitosamente');
               } else {
-                msg = objRes.addResults[0].error.description
+                msg = response.addResults[0].error.description
                 showMessage('Error al enviar la información: ' + msg, 'error')
               }
             }),
@@ -144,13 +149,13 @@ function(
           console.log('data: ', data);
           var strData = JSON.stringify([data])
           postRequest(appConfig.Sias.urlBase + appConfig.Sias.urlKeyProfesionales + '/updateFeatures', strData, 'features').then(
-            lang.hitch(this, function(objRes) { 
-              if (objRes.updateResults[0].success === true)
+            lang.hitch(this, function(response) { 
+              if (response.updateResults[0].success === true)
               {
                 getProfesionales();
                 showMessage('Profesional actualizado exitosamente');
               } else {
-                msg = objRes.updateResults[0].error.description
+                msg = response.updateResults[0].error.description
                 showMessage('Error al enviar la información: ' + msg, 'error')
               }
             }),
@@ -173,13 +178,13 @@ function(
           console.log('data: ', data);
           var strData = JSON.stringify([data])
           postRequest(appConfig.Sias.urlBase + appConfig.Sias.urlKeySolicitante + '/updateFeatures', strData, 'features').then(
-            lang.hitch(this, function(objRes) { 
-              if (objRes.updateResults[0].success === true)
+            lang.hitch(this, function(response) { 
+              if (response.updateResults[0].success === true)
               {
                 getSolicitantes();
                 showMessage('Solicitante actualizado exitosamente');
               } else {
-                msg = objRes.updateResults[0].error.description
+                msg = response.updateResults[0].error.description
                 showMessage('Error al enviar la información: ' + msg, 'error')
               }
             }),
@@ -202,13 +207,13 @@ function(
           console.log('data: ', data);
           var strData = JSON.stringify([data])
           postRequest(appConfig.Sias.urlBase + appConfig.Sias.urlKeyEstadoGestion + '/updateFeatures', strData, 'features').then(
-            lang.hitch(this, function(objRes) { 
-              if (objRes.updateResults[0].success === true)
+            lang.hitch(this, function(response) { 
+              if (response.updateResults[0].success === true)
               {
                 getEstadosGestion();
                 showMessage('Estado actualizado exitosamente');
               } else {
-                msg = objRes.updateResults[0].error.description
+                msg = response.updateResults[0].error.description
                 showMessage('Error al enviar la información: ' + msg, 'error')
               }
             }),
@@ -319,12 +324,17 @@ function(
         let id = evt.target.dataset.dojoArgs;
         tabla = 'profesionales';
         console.log('aca: ', id);
-        let query = '/query?outFields=*&orderByFields=Nombres&where=OBJECTID='+id+'&f=pjson';
-        getRequest(appConfig.Sias.urlBase + appConfig.Sias.urlKeyProfesionales + query).then(
-          lang.hitch(this, function(objRes) { 
-            if(objRes.features.length > 0)
+        // let query = '/query?outFields=*&orderByFields=Nombres&where=OBJECTID='+id+'&f=pjson';
+        var url = appConfig.Sias.urlBase + appConfig.Sias.urlKeyProfesionales;
+        var query = new Query();
+        query.outFields = ["*"];
+        query.orderByFields = ['Nombres']
+        query.where = 'OBJECTID=' + id;
+        getRequest(url, query).then(
+          lang.hitch(this, function(response) { 
+            if(response.featureSet.features.length > 0)
             {
-              var profesional = objRes.features[0].attributes;
+              var profesional = response.featureSet.features[0].attributes;
               var activo = (profesional.Status === null || profesional.Status === 1) ? 'selected' : '';
               var inactivo = (profesional.Status === -1 ) ? 'selected' : '';
               let content = `<div class="dijitDialogPaneContentArea">
@@ -394,12 +404,17 @@ function(
       on(dom.byId("mantenedor-lista-solicitantes"), on.selector(".solicitantes", "click"), function(evt){
         let id = evt.target.dataset.dojoArgs;
         tabla = 'solicitantes';
-        let query = '/query?outFields=*&orderByFields=Nombres&where=OBJECTID='+id+'&f=pjson';
-        getRequest(appConfig.Sias.urlBase + appConfig.Sias.urlKeySolicitante + query).then(
-          lang.hitch(this, function(objRes) { 
-            if(objRes.features.length > 0)
+        // let query = '/query?outFields=*&orderByFields=Nombres&where=OBJECTID='+id+'&f=pjson';
+        var url = appConfig.Sias.urlBase + appConfig.Sias.urlKeySolicitante;
+        var query = new Query();
+        query.outFields = ["*"];
+        query.orderByFields = ['Nombres']
+        query.where = 'OBJECTID=' + id;
+        getRequest(url, query).then(
+          lang.hitch(this, function(response) { 
+            if(response.featureSet.features.length > 0)
             {
-              var solicitante = objRes.features[0].attributes;
+              var solicitante = response.featureSet.features[0].attributes;
               var activo = (solicitante.Status === null || solicitante.Status === 1) ? 'selected' : '';
               var inactivo = (solicitante.Status === -1 ) ? 'selected' : '';
               let content = `<div class="dijitDialogPaneContentArea">
@@ -465,12 +480,17 @@ function(
       on(dom.byId("mantenedor-lista-estados"), on.selector(".estado-gestion", "click"), function(evt){
         let id = evt.target.dataset.dojoArgs;
         tabla = 'estados';
-        let query = '/query?outFields=*&orderByFields=Estados_Gestion&where=OBJECTID='+id+'&f=pjson';
-        getRequest(appConfig.Sias.urlBase + appConfig.Sias.urlKeyEstadoGestion + query).then(
-          lang.hitch(this, function(objRes) { 
-            if(objRes.features.length > 0)
+        // let query = '/query?outFields=*&orderByFields=Estados_Gestion&where=OBJECTID='+id+'&f=pjson';
+        var url = appConfig.Sias.urlBase + appConfig.Sias.urlKeyEstadoGestion;
+        var query = new Query();
+        query.outFields = ["*"];
+        query.orderByFields = ['Estados_Gestion']
+        query.where = 'OBJECTID=' + id;
+        getRequest(url, query).then(
+          lang.hitch(this, function(response) { 
+            if(response.featureSet.features.length > 0)
             {
-              var estado = objRes.features[0].attributes;
+              var estado = response.featureSet.features[0].attributes;
               let content = `<div class="dijitDialogPaneContentArea">
               <table class="table table-hover table-sm">
                 <tr>
@@ -510,18 +530,26 @@ function(
     getUserTokenPortal: function () {
       var portalUrl = portalUrlUtils.getStandardPortalUrl(this.appConfig.portalUrl);
       var portal = portalUtils.getPortal(portalUrl);
-      userPortal = portal.user;
-      userToken = userPortal.credential.token;
+      if(portal.user !== null)
+      {
+        userPortal = portal.user;
+        userToken = userPortal.credential.token;
+      }
     },
 
     getProfesionales: function () {
-      var query = '/query?outFields=*&where=1%3D1&orderByFields=Nombre_apellido&f=pjson';
-      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyProfesionales + query).then(
+      // var query = '/query?outFields=*&where=1%3D1&orderByFields=Nombre_apellido&f=pjson';
+      var url = this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyProfesionales;
+      var query = new Query();
+      query.outFields = ["*"];
+      query.orderByFields = ['Nombre_apellido']
+      query.where = '1=1';
+      this.getRequest(url, query).then(
         lang.hitch(this, function(response) { 
-          if(response.features.length > 0)
+          if(response.featureSet.features.length > 0)
           {
             let html = '<table class="table table-hover table-sm mt-3">';
-            arrayUtils.forEach(response.features, function(f) {
+            arrayUtils.forEach(response.featureSet.features, function(f) {
               var clase = (f.attributes.Status === -1) ? 'alert-danger' : '';
               html += '<tr class="' + clase + '"><td>' + f.attributes.Nombre_apellido + '</td><td><button type="button" data-dojo-type="dijit/form/Button" class="btn btn-primary btn-sm profesionales" data-dojo-args="' + f.attributes.OBJECTID + '">Editar</button></td></tr>';
             }, this);
@@ -536,13 +564,18 @@ function(
     },
 
     getSolicitantes: function () {
-      var query = '/query?outFields=*&where=1%3D1&f=pjson';
-      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySolicitante + query).then(
+      // var query = '/query?outFields=*&where=1%3D1&f=pjson';
+      var url = this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySolicitante;
+      var query = new Query();
+      query.outFields = ["*"];
+      query.orderByFields = ['Nombre_apellido']
+      query.where = '1=1';
+      this.getRequest(url, query).then(
         lang.hitch(this, function(response) { 
-          if(response.features.length > 0)
+          if(response.featureSet.features.length > 0)
           {
             let html = '<table class="table table-hover table-sm mt-3">';
-            arrayUtils.forEach(response.features, function(f) {
+            arrayUtils.forEach(response.featureSet.features, function(f) {
               var clase = (f.attributes.Status === -1) ? 'alert-danger' : '';
               html += '<tr class="' + clase + '"><td>' + f.attributes.Nombre_apellido + ' (' + f.attributes.Empresa + ')</td><td><button type="button" data-dojo-type="dijit/form/Button" class="btn btn-primary btn-sm solicitantes" data-dojo-args="' + f.attributes.OBJECTID  + '">Editar</button></td></tr>';
             }, this);
@@ -557,13 +590,18 @@ function(
     },
 
     getEstadosGestion: function () {
-      var query = '/query?outFields=*&where=1%3D1&f=pjson';
-      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyEstadoGestion + query).then(
+      // var query = '/query?outFields=*&where=1%3D1&f=pjson';
+      var url = this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyEstadoGestion;
+      var query = new Query();
+      query.outFields = ["*"];
+      query.orderByFields = ['Estados_Gestion']
+      query.where = '1=1';
+      this.getRequest(url, query).then(
         lang.hitch(this, function(response) { 
-          if(response.features.length > 0)
+          if(response.featureSet.features.length > 0)
           {
             let html = '<table class="table table-hover table-sm mt-3">';
-            arrayUtils.forEach(response.features, function(f) {
+            arrayUtils.forEach(response.featureSet.features, function(f) {
               html += '<tr><td>' + f.attributes.Estados_Gestion + '</td><td><button type="button" data-dojo-type="dijit/form/Button" class="btn btn-primary btn-sm estado-gestion" data-dojo-args="' + f.attributes.OBJECTID  + '">Editar</button></td></tr>';
             }, this);
             html += '</table>'
@@ -725,7 +763,28 @@ function(
       myDialog.hide();
     },
 
-    getRequest: function (url) {
+    getRequest: function (url, query) {
+      try{
+        var deferred = new Deferred();
+        var queryTask = new QueryTask(url);
+        
+        queryTask.execute(query);
+        queryTask.on("complete", function(response){
+          console.log('complete response: ', response)
+          deferred.resolve(response);
+        });
+        queryTask.on("error", function(error){
+          console.log('error: ', error)
+          deferred.reject();
+        });
+      } catch(err) {
+          console.log('request failed', err)
+        deferred.reject();
+      }
+      return deferred.promise;
+    },
+
+    getRequest_old: function (url) {
       try{
         var deferred = new Deferred();
         fetch(url + '&token=' + userToken)
@@ -752,7 +811,10 @@ function(
         let formData = new FormData();
         formData.append('f', 'json');
         formData.append(type, data);
-        formData.append('token', userToken);
+        if(userToken !== null)
+        {
+          formData.append('token', userToken);
+        }
 
         let fetchData = {
             method: 'POST',
