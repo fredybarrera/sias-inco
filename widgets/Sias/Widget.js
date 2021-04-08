@@ -156,16 +156,11 @@ function(
 
     getUserTokenPortal: function () {
       var portalUrl = portalUrlUtils.getStandardPortalUrl(this.appConfig.portalUrl);
-      console.log('this.appConfig.portalUrl: ', this.appConfig.portalUrl);
-      console.log('portalUrl: ', portalUrl);
       var portal = portalUtils.getPortal(portalUrl);
-      console.log('portal: ', portal);
       if(portal.user !== null)
       {
         userPortal = portal.user;
-        console.log('userPortal: ', userPortal);
         userToken = userPortal.credential.token;
-        console.log('userPortal: ', userPortal);
       }
     },
 
@@ -576,7 +571,6 @@ function(
       console.log('id_sia_general: ', id_sia_general);
 
       //Valido que el id de la sia no exista previamente en la capa.
-      // var query = '/query?returnCountOnly=true&where=SIAs_Areas_SIA_ID_Gral=\'' + id_sia_general + '\'&f=pjson';
       var url = this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySias;
 
       var query = new Query();

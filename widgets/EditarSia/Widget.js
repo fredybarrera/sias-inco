@@ -13,7 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////////
-var userToken, userPortal = null;
+var userToken = null;
+var userPortal = null;
 var editToolbar;
 var geometriesKmlEdit = {};
 var map, config, resetForm, getRequest, html_infotemplate, gLayer;
@@ -42,6 +43,8 @@ define([
   "dojo/store/Memory",
   "dojo/when",
   "dijit/form/FilteringSelect", 
+  'esri/tasks/query',
+	'esri/tasks/QueryTask',
 ],
 function(
   declare, 
@@ -68,6 +71,8 @@ function(
   Memory, 
   when, 
   FilteringSelect, 
+  Query,
+	QueryTask,
   ){
   return declare(BaseWidget, {
     name: "EditarSia",
@@ -121,8 +126,11 @@ function(
     getUserTokenPortal: function () {
       var portalUrl = portalUrlUtils.getStandardPortalUrl(this.appConfig.portalUrl);
       var portal = portalUtils.getPortal(portalUrl);
-      userPortal = portal.user;
-      userToken = userPortal.credential.token;
+      if(portal.user !== null)
+      {
+        userPortal = portal.user;
+        userToken = userPortal.credential.token;
+      }
     },
 
     loadEpc: function () {
@@ -183,13 +191,16 @@ function(
 
             if(profesional)
             {
-              var query = '/query?outFields=*&where=ID_ProfesionalINCO='+profesional+'&f=pjson';
-              getRequest(config.urlBase + config.urlKeyProfesionales + query).then(
+              var url = config.urlBase + config.urlKeyProfesionales;
+              var query = new Query();
+              query.outFields = ["*"];
+              query.where = "ID_ProfesionalINCO="+profesional;
+              getRequest(url, query).then(
                 lang.hitch(this, function(response) { 
-                  if(response.features.length > 0)
+                  if(response.featureSet.features.length > 0)
                   {
                     console.log('response: ', response);
-                    $("#sel-profesional-inco-editar-sia").val(response.features[0].attributes.ID_ProfesionalINCO)
+                    $("#sel-profesional-inco-editar-sia").val(response.featureSet.features[0].attributes.ID_ProfesionalINCO)
                   }
                 }),
                 function(objErr) {
@@ -200,13 +211,16 @@ function(
 
             if(solicitante)
             {
-              var query = '/query?outFields=*&where=ID_Solicitante='+solicitante+'&f=pjson';
-              getRequest(config.urlBase + config.urlKeySolicitante + query).then(
+              var url = config.urlBase + config.urlKeySolicitante;
+              var query = new Query();
+              query.outFields = ["*"];
+              query.where = "ID_Solicitante="+solicitante;
+              getRequest(url, query).then(
                 lang.hitch(this, function(response) { 
-                  if(response.features.length > 0)
+                  if(response.featureSet.features.length > 0)
                   {
                     console.log('response: ', response);
-                    $("#sel-solicitante-inco-editar-sia").val(response.features[0].attributes.ID_Solicitante)
+                    $("#sel-solicitante-inco-editar-sia").val(response.featureSet.features[0].attributes.ID_Solicitante)
                   }
                 }),
                 function(objErr) {
@@ -265,13 +279,17 @@ function(
     },
 
     loadProfesionalesInco: function () {
-      var query = '/query?outFields=*&where=1%3D1&f=pjson';
-      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyProfesionales + query).then(
+      var url = this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeyProfesionales;
+      var query = new Query();
+      query.orderByFields = ["Apellidos"];
+      query.outFields = ["*"];
+      query.where = "1=1";
+      this.getRequest(url, query).then(
         lang.hitch(this, function(response) { 
-          if(response.features.length > 0)
+          if(response.featureSet.features.length > 0)
           {
             let html = '<option value="-1">[Seleccione]</option>';
-            html += response.features.map(function (f) {
+            html += response.featureSet.features.map(function (f) {
               return '<option value="' + f.attributes.ID_ProfesionalINCO + '">' + f.attributes.Nombre_apellido + '</option>';
             });
             $('#sel-profesional-inco-editar-sia').html(html)
@@ -284,13 +302,17 @@ function(
     },
 
     loadSolicitantesInco: function () {
-      var query = '/query?outFields=*&returnGeometry=true&where=1%3D1&orderByFields=Apellidos&f=pjson'
-      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySolicitante + query).then(
+      var url = this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySolicitante;
+      var query = new Query();
+      query.orderByFields = ["Apellidos"];
+      query.outFields = ["*"];
+      query.where = "1=1";
+      this.getRequest(url, query).then(
         lang.hitch(this, function(response) { 
-          if(response.features.length > 0)
+          if(response.featureSet.features.length > 0)
           {
             let html = '<option value="-1">[Seleccione]</option>';
-            html += response.features.map(function (f) {
+            html += response.featureSet.features.map(function (f) {
               return '<option value="' + f.attributes.ID_Solicitante + '">[' + f.attributes.Empresa + '] ' + f.attributes.Apellidos + ', ' + f.attributes.Nombres + '</option>';
             });
             $('#sel-solicitante-inco-editar-sia').html(html)
@@ -507,7 +529,28 @@ function(
       });
     },
 
-    getRequest: function (url) {
+    getRequest: function (url, query) {
+      try{
+        var deferred = new Deferred();
+        var queryTask = new QueryTask(url);
+        
+        queryTask.execute(query);
+        queryTask.on("complete", function(response){
+          console.log('complete response: ', response)
+          deferred.resolve(response);
+        });
+        queryTask.on("error", function(error){
+          console.log('error: ', error)
+          deferred.reject();
+        });
+      } catch(err) {
+          console.log('request failed', err)
+        deferred.reject();
+      }
+      return deferred.promise;
+    },
+
+    getRequest_old: function (url) {
       console.log('userToken: ', userToken);
       try{
         var deferred = new Deferred();
@@ -535,7 +578,10 @@ function(
         let formData = new FormData();
         formData.append('f', 'json');
         formData.append(type, data);
-        formData.append('token', userToken);
+        if(userToken !== null)
+        {
+          formData.append('token', userToken);
+        }
 
         let fetchData = {
             method: 'POST',
