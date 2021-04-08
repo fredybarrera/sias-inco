@@ -13,7 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////////
-var userToken, userPortal = null;
+var userToken = null;
+var userPortal = null;
 var config, map;
 var data = [];
 var dataReporteDiario = [];
@@ -76,8 +77,11 @@ function(
     getUserTokenPortal: function () {
       var portalUrl = portalUrlUtils.getStandardPortalUrl(this.appConfig.portalUrl);
       var portal = portalUtils.getPortal(portalUrl);
-      userPortal = portal.user;
-      userToken = userPortal.credential.token;
+      if(portal.user !== null)
+      {
+        userPortal = portal.user;
+        userToken = userPortal.credential.token;
+      }
     },
 
     getReporteNotas: function () {
@@ -154,10 +158,15 @@ function(
     },
 
     getReporteDiario: function () {
-      var query = '/query?outFields=*&returnGeometry=false&where=Dat_SIAs_Estados_Gestion%3C%3E%27Aprobada%27+and+Dat_SIAs_Estados_Gestion%3C%3E%27Desmovilizada%27+and+Dat_SIAs_Estados_Gestion%3C%3E%27Desistida%27&orderByFields=Dat_SIAs_SIA_EPC%2C+Dat_SIAs_Estados_Gestion&f=pjson'
-      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySias + query).then(
+      // var query = '/query?outFields=*&returnGeometry=false&where=Dat_SIAs_Estados_Gestion%3C%3E%27Aprobada%27+and+Dat_SIAs_Estados_Gestion%3C%3E%27Desmovilizada%27+and+Dat_SIAs_Estados_Gestion%3C%3E%27Desistida%27&orderByFields=Dat_SIAs_SIA_EPC%2C+Dat_SIAs_Estados_Gestion&f=pjson'
+      var url = this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySias;
+      var query = new Query();
+      query.outFields = ["*"];
+      query.orderByFields = ['Dat_SIAs_SIA_EPC, Dat_SIAs_Estados_Gestion']
+      query.where = "Dat_SIAs_Estados_Gestion<>'Aprobada' and Dat_SIAs_Estados_Gestion<>'Desmovilizada' and Dat_SIAs_Estados_Gestion<>'Desistida'";
+      this.getRequest(url, query).then(
         lang.hitch(this, function(response) { 
-          if(response.features.length > 0)
+          if(response.featureSet.features.length > 0)
           {
             $("#btn-descargar-reporte-diario").show();
             var html = '<table class="table table-bordered table-sm"><thead>';
@@ -173,7 +182,7 @@ function(
             html += '<th scope="col">Comentario</th>';
             html += '</tr></thead><tbody>';
 
-            arrayUtils.forEach(response.features, function(f) {
+            arrayUtils.forEach(response.featureSet.features, function(f) {
               let fechaActual = new Date();
               let fechaSolicitud = new Date(f.attributes.Dat_SIAs_Fecha_Solicitud);
               let fechaAprobada = new Date(f.attributes.Dat_SIAs_Fecha_Aprobada);
@@ -241,10 +250,15 @@ function(
     },
 
     getInformeGeneralSia: function () {
-      var query = '/query?outFields=*&returnGeometry=false&where=1%3D1&orderByFields=Dat_SIAs_SIA_EPC%2C+Dat_SIAs_Estados_Gestion&f=pjson'
-      this.getRequest(this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySias + query).then(
+      // var query = '/query?outFields=*&returnGeometry=false&where=1%3D1&orderByFields=Dat_SIAs_SIA_EPC%2C+Dat_SIAs_Estados_Gestion&f=pjson'
+      var url = this.appConfig.Sias.urlBase + this.appConfig.Sias.urlKeySias;
+      var query = new Query();
+      query.outFields = ["*"];
+      query.orderByFields = ['Dat_SIAs_SIA_EPC, Dat_SIAs_Estados_Gestion']
+      query.where = "1=1";
+      this.getRequest(url, query).then(
         lang.hitch(this, function(response) { 
-          if(response.features.length > 0)
+          if(response.featureSet.features.length > 0)
           {
             $("#btn-descargar-informe-gral").show();
             var html = '<table class="table table-bordered table-sm"><thead>';
@@ -260,7 +274,7 @@ function(
             html += '<th scope="col">Comentario</th>';
             html += '</tr></thead><tbody>';
 
-            arrayUtils.forEach(response.features, function(f) {
+            arrayUtils.forEach(response.featureSet.features, function(f) {
               let fechaActual = new Date();
               let fechaSolicitud = new Date(f.attributes.Dat_SIAs_Fecha_Solicitud);
               let fechaAprobada = new Date(f.attributes.Dat_SIAs_Fecha_Aprobada);
@@ -347,7 +361,28 @@ function(
       XLSX.writeFile(wb,fileName);
     },
 
-    getRequest: function (url) {
+    getRequest: function (url, query) {
+      try{
+        var deferred = new Deferred();
+        var queryTask = new QueryTask(url);
+        
+        queryTask.execute(query);
+        queryTask.on("complete", function(response){
+          console.log('complete response: ', response)
+          deferred.resolve(response);
+        });
+        queryTask.on("error", function(error){
+          console.log('error: ', error)
+          deferred.reject();
+        });
+      } catch(err) {
+          console.log('request failed', err)
+        deferred.reject();
+      }
+      return deferred.promise;
+    },
+
+    getRequest_old: function (url) {
       try{
         var deferred = new Deferred();
         fetch(url + '&token=' + userToken)
