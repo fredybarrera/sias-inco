@@ -543,13 +543,8 @@ function(
       }
 
       //Valido que se selccione una sia de origen
-      var sia_origen = $('#sel-nuevasia-sia-origen').val()
-      if (sia_origen == '-1' || sia_origen == '')
-      {
-        deferred.reject('Debe seleccionar una sia de origen');
-      } else {
-        attributes['Dat_SIAs_SIA_Origen'] = sia_origen
-      }
+      var sia_origen = $('#sel-nuevasia-sia-origen').val();
+      attributes['Dat_SIAs_SIA_Origen'] = sia_origen;
 
       // Nota de gestion
       //Valido que ingrese un estado de gestión
@@ -567,18 +562,6 @@ function(
         attributes['Estatus_general'] = statusGeneralSia[estado_gestion];
         attributes['Dat_SIAs_Estado2'] = statusEspecificoSia[estado_gestion];
       }
-
-      // console.log('statusGeneralSia: ', statusGeneralSia);
-      // console.log('statusEspecificoSia: ', statusEspecificoSia);
-
-      // var comentarioSia = $('#txta-sia-comentario').val();
-      // attributes['Dat_SIAs_Comentario'] = comentarioSia;
-
-      // var SIAs_Areas_Area_m2 = $("#input-sia-SIAs_Areas_Area_m2").val();
-      // if(SIAs_Areas_Area_m2 !== '')
-      // {
-      //   attributes['SIAs_Areas_Area_m2'] = parseInt(SIAs_Areas_Area_m2);
-      // }
 
       // “Modifica_Ingenieria”, “Modifica_Area_RCA” y “Describe_Cambio_RCA”.
 

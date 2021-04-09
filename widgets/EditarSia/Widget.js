@@ -417,10 +417,6 @@ function(
       var dataSIa = {};
       var attributes = {};
 
-      console.log('geometriesKmlEdit: ', geometriesKmlEdit);
-
-      // Valido que se elija una sia
-      // var SIAs_Areas_SIA_ID_Gral = $('#sel-sia-editar-sia option:selected').val();
       var SIAs_Areas_SIA_ID_Gral = $('#sel-sia-editar-sia').val();
       if (SIAs_Areas_SIA_ID_Gral == '-1' || SIAs_Areas_SIA_ID_Gral == '')
       {
@@ -442,9 +438,6 @@ function(
           deferred.reject('Debe seleccionar al menos un polígono')
         } else {
           arrayUtils.forEach(gLayer.graphics, function(f) {
-            // console.log('f.geometry: ', f.geometry);
-            // var geometry = webMercatorUtils.webMercatorToGeographic(f.geometry);
-            // console.log('geometry: ', geometry);
             geom.push(f.geometry);
           }, this);
           var union = geometryEngine.union(geom);
@@ -479,14 +472,6 @@ function(
         attributes['Dat_SIAs_SIA_EPC'] = epc
       }
 
-      var Dat_SIAs_Id_Sistema = $("#input-editar-sia-Dat_SIAs_Id_Sistema").val();
-      if(Dat_SIAs_Id_Sistema !== '')
-      {
-        attributes['Dat_SIAs_Id_Sistema'] = parseInt(Dat_SIAs_Id_Sistema);
-      }else{
-        attributes['Dat_SIAs_Id_Sistema'] = null;
-      }
-
       var Dat_SIAs_Area_Solicitada = $("#input-editar-sia-Dat_SIAs_Area_Solicitada").val();
       if(Dat_SIAs_Area_Solicitada !== '')
       {
@@ -495,20 +480,9 @@ function(
         deferred.reject('Debe ingresar una área solicitada');
       }
 
-      //Valido que se selccione una sia de origen
-      var sia_origen = $('#input-editar-sia-Dat_SIAs_SIA_Origen').val()
-      if (sia_origen == '-1' || sia_origen == '')
-      {
-        deferred.reject('Debe seleccionar una sia de origen');
-      } else {
-        attributes['Dat_SIAs_SIA_Origen'] = sia_origen
-      }
-
-      // attributes['Dat_SIAs_SIA_ID_LOCAL'] = $("#input-editar-sia-Dat_SIAs_SIA_ID_LOCAL").val();
-      // attributes['Dat_SIAs_SIA_IDE_Etiq'] = $("#input-editar-sia-Dat_SIAs_SIA_IDE_Etiq").val();
-      // attributes['Dat_SIAs_SIAIDGRAL2'] = $("#input-editar-sia-Dat_SIAs_SIAIDGRAL2").val();
-      // attributes['Dat_SIAs_Comentario'] = $("#input-editar-sia-Dat_SIAs_Comentario").val();
-      // attributes['Dat_SIAs_SIA_Origen'] = $("#input-editar-sia-Dat_SIAs_SIA_Origen").val();
+      // sia de origen
+      var sia_origen = $('#input-editar-sia-Dat_SIAs_SIA_Origen').val();
+      attributes['Dat_SIAs_SIA_Origen'] = sia_origen;
       attributes['OBJECTID'] = parseInt($("#input-editar-sia-OBJECTID").val());
   
       // “Modifica_Ingenieria”, “Modifica_Area_RCA” y “Describe_Cambio_RCA”.
@@ -669,10 +643,7 @@ function(
         var name = gLayer.name;
         console.log('gLayer: ', gLayer);
         console.log('name: ', name);
-        // console.log('type: ', typeof(name));
-        // console.log('type: ', typeof(name));
         if (name !== undefined && name.search(".kml") !== -1)
-        // if(gLayer.id !== "defaultBasemap" && gLayer.id !== "gLayerGraphic" && gLayer.name !== undefined)
         {
           existenCapas = true;
           console.log('glayer layerIds: ', gLayer);

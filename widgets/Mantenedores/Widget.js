@@ -56,7 +56,6 @@ function(
     {
       getDataProfesional().then(
         lang.hitch(this, function(data) { 
-          console.log('data: ', data);
           var strData = JSON.stringify([data])
           postRequest(appConfig.Sias.urlBase + appConfig.Sias.urlKeyProfesionales + '/applyEdits', strData, 'adds').then(
             lang.hitch(this, function(response) { 
@@ -64,6 +63,7 @@ function(
               {
                 getProfesionales();
                 showMessage('Profesional creado exitosamente');
+                myDialog.hide();
               } else {
                 msg = response.addResults[0].error.description
                 showMessage('Error al enviar la información: ' + msg, 'error')
@@ -77,7 +77,7 @@ function(
         }),
         lang.hitch(this, function(strError) {
           console.log('request failed', strError);
-          this.showMessage(strError, 'error')
+          $("#alert-crear-profesional").html(strError).show()
         })
       );
 
@@ -93,6 +93,7 @@ function(
               {
                 getSolicitantes();
                 showMessage('Solicitante creado exitosamente');
+                myDialog.hide();
               } else {
                 msg = response.addResults[0].error.description
                 showMessage('Error al enviar la información: ' + msg, 'error')
@@ -106,7 +107,7 @@ function(
         }),
         lang.hitch(this, function(strError) {
           console.log('request failed', strError);
-          this.showMessage(strError, 'error')
+          showMessage(strError, 'error')
         })
       );
 
@@ -121,6 +122,7 @@ function(
               {
                 getEstadosGestion();
                 showMessage('Estado creado exitosamente');
+                myDialog.hide();
               } else {
                 msg = response.addResults[0].error.description
                 showMessage('Error al enviar la información: ' + msg, 'error')
@@ -134,11 +136,10 @@ function(
         }),
         lang.hitch(this, function(strError) {
           console.log('request failed', strError);
-          this.showMessage(strError, 'error')
+          $("#alert-crear-estado").html(strError).show();
         })
       );
     }
-    myDialog.hide();
   };
 
   actualizar = function () {
@@ -146,7 +147,6 @@ function(
     {
       getDataProfesional().then(
         lang.hitch(this, function(data) { 
-          console.log('data: ', data);
           var strData = JSON.stringify([data])
           postRequest(appConfig.Sias.urlBase + appConfig.Sias.urlKeyProfesionales + '/updateFeatures', strData, 'features').then(
             lang.hitch(this, function(response) { 
@@ -154,6 +154,7 @@ function(
               {
                 getProfesionales();
                 showMessage('Profesional actualizado exitosamente');
+                myDialog.hide();
               } else {
                 msg = response.updateResults[0].error.description
                 showMessage('Error al enviar la información: ' + msg, 'error')
@@ -167,7 +168,7 @@ function(
         }),
         lang.hitch(this, function(strError) {
           console.log('request failed', strError);
-          this.showMessage(strError, 'error')
+          $("#alert-edit-profesional").text(strError).show();
         })
       );
       
@@ -183,6 +184,7 @@ function(
               {
                 getSolicitantes();
                 showMessage('Solicitante actualizado exitosamente');
+                myDialog.hide();
               } else {
                 msg = response.updateResults[0].error.description
                 showMessage('Error al enviar la información: ' + msg, 'error')
@@ -196,7 +198,7 @@ function(
         }),
         lang.hitch(this, function(strError) {
           console.log('request failed', strError);
-          this.showMessage(strError, 'error')
+          showMessage(strError, 'error')
         })
       );
 
@@ -212,6 +214,7 @@ function(
               {
                 getEstadosGestion();
                 showMessage('Estado actualizado exitosamente');
+                myDialog.hide();
               } else {
                 msg = response.updateResults[0].error.description
                 showMessage('Error al enviar la información: ' + msg, 'error')
@@ -225,11 +228,10 @@ function(
         }),
         lang.hitch(this, function(strError) {
           console.log('request failed', strError);
-          this.showMessage(strError, 'error')
+          $("#alert-edit-estado").html(strError).show();
         })
       );
     }
-    myDialog.hide();
   };
 
   cancel = function () {
@@ -240,16 +242,81 @@ function(
     var deferred = new Deferred();
     var data = {};
     var attributes = {};
+    var areas = [];
+
+    $("#alert-edit-profesional").html('').hide();
 
     attributes['OBJECTID'] = parseInt($("#OBJECTID").val());
-    attributes['Nombres'] = $("#Nombres").val();
-    attributes['Apellidos'] = $("#Apellidos").val();
-    attributes['Empresa'] = $("#Empresa").val();
-    attributes['Dirección_de_correo_electrónico'] = $("#Dirección_de_correo_electrónico").val();
-    attributes['Area_EPC'] = $("#Area_EPC").val();
-    attributes['Rol_en_Proyecto'] = $("#Rol_en_Proyecto").val();
-    attributes['Teléfono_móvil'] = $("#Teléfono_móvil").val();
-    attributes['Teléfono_del_trabajo'] = $("#Teléfono_del_trabajo").val();
+    
+    var Nombres = $('#Nombres').val()
+    if (Nombres == '')
+    {
+      deferred.reject('Debe ingresar nombres');
+    } else {
+      attributes['Nombres'] = Nombres;
+    }
+
+    var Apellidos = $('#Apellidos').val()
+    if (Apellidos == '')
+    {
+      deferred.reject('Debe ingresar apellidos');
+    } else {
+      attributes['Apellidos'] = Apellidos;
+    }
+
+    var Empresa = $('#Empresa').val()
+    if (Empresa == '')
+    {
+      deferred.reject('Debe ingresar empresa');
+    } else {
+      attributes['Empresa'] = Empresa;
+    }
+
+    var Dirección_de_correo_electrónico = $('#Dirección_de_correo_electrónico').val()
+    if (Dirección_de_correo_electrónico == '')
+    {
+      deferred.reject('Debe ingresar correo electrónico');
+    } else {
+      attributes['Dirección_de_correo_electrónico'] = Dirección_de_correo_electrónico;
+    }
+
+    var $boxes = $('input[name=checkBoxProfesional]:checked');
+
+    $boxes.each(function(){
+      areas.push($(this).val());
+    });
+
+    if (areas.length === 0)
+    {
+      deferred.reject('Debe ingresar EPC');
+    } else {
+      attributes['Area_EPC'] = areas.join(', ');
+    }
+
+    var Rol_en_Proyecto = $('#Rol_en_Proyecto').val()
+    if (Rol_en_Proyecto == '')
+    {
+      deferred.reject('Debe ingresar Rol en proyecto');
+    } else {
+      attributes['Rol_en_Proyecto'] = Rol_en_Proyecto;
+    }
+
+    var Teléfono_móvil = $('#Teléfono_móvil').val()
+    if (Teléfono_móvil == '')
+    {
+      deferred.reject('Debe ingresar Teléfono móvil');
+    } else {
+      attributes['Teléfono_móvil'] = Teléfono_móvil;
+    }
+
+    var Teléfono_del_trabajo = $('#Teléfono_del_trabajo').val()
+    if (Teléfono_del_trabajo == '')
+    {
+      deferred.reject('Debe ingresar Teléfono trabajo');
+    } else {
+      attributes['Teléfono_del_trabajo'] = Teléfono_del_trabajo;
+    }
+
     attributes['Nombre_apellido'] = $("#Nombres").val() + ' ' + $("#Apellidos").val();
     attributes['Status'] = $("#Status option:selected").val();
 
@@ -283,11 +350,41 @@ function(
     var deferred = new Deferred();
     var data = {};
     var attributes = {};
+    var statusGral = null;
+    $("#alert-edit-estado").html('').hide();
 
     attributes['OBJECTID'] = parseInt($("#OBJECTID").val());
-    attributes['Estados_Gestion'] = $("#Estados_Gestion").val();
-    attributes['Descripción_del_Estado'] = $("#Descripción_del_Estado").val();
-    attributes['Estatus_gral'] = $("#Estatus_gral").val();
+
+    var Estados_Gestion = $('#Estados_Gestion').val()
+    if (Estados_Gestion == '')
+    {
+      deferred.reject('Debe ingresar nombre');
+    } else {
+      attributes['Estados_Gestion'] = Estados_Gestion;
+    }
+
+    var Descripción_del_Estado = $('#Descripción_del_Estado').val()
+    if (Descripción_del_Estado == '')
+    {
+      deferred.reject('Debe ingresar descripción');
+    } else {
+      attributes['Descripción_del_Estado'] = Descripción_del_Estado;
+    }
+    
+    var $boxes = $('input[name=gridRadios]:checked');
+
+    $boxes.each(function(){
+      console.log('$(this).val(): ', $(this).val())
+      statusGral = $(this).val();
+    });
+
+    if(statusGral===null)
+    {
+      deferred.reject('Debe seleccionar un status general');
+    }else{
+      attributes['Estatus_gral'] = statusGral;
+    }
+    
 
     data['attributes'] = attributes;
     deferred.resolve(data);
@@ -324,7 +421,6 @@ function(
         let id = evt.target.dataset.dojoArgs;
         tabla = 'profesionales';
         console.log('aca: ', id);
-        // let query = '/query?outFields=*&orderByFields=Nombres&where=OBJECTID='+id+'&f=pjson';
         var url = appConfig.Sias.urlBase + appConfig.Sias.urlKeyProfesionales;
         var query = new Query();
         query.outFields = ["*"];
@@ -337,6 +433,30 @@ function(
               var profesional = response.featureSet.features[0].attributes;
               var activo = (profesional.Status === null || profesional.Status === 1) ? 'selected' : '';
               var inactivo = (profesional.Status === -1 ) ? 'selected' : '';
+              var Area_EPC = profesional.Area_EPC;
+              var arrArea_EPC = Area_EPC.split(", ");
+              var epc1, epc2, epc3, epc4;
+              arrayUtils.forEach(arrArea_EPC, function(f) {
+                if(f==='EPC-1')
+                {
+                  epc1 = 'checked';
+                }
+                if(f==='EPC-2')
+                {
+                  epc2 = 'checked';
+                }
+                if(f==='EPC-3')
+                {
+                  epc3 = 'checked';
+                }
+                if(f==='EPC-4')
+                {
+                  epc4 = 'checked';
+                }
+                
+              }, this);
+
+
               let content = `<div class="dijitDialogPaneContentArea">
               <table class="table table-hover table-sm">
                 <tr>
@@ -362,19 +482,19 @@ function(
                   <td><label for="desc">Area EPC: </label></td>
                   <td>
                     <div class="form-check" style="padding-bottom: 10px;">
-                      <input type="checkbox" class="form-check-input" id="Area_EPC1" style="position: absolute;top: -3px;">
+                      <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC-1" value="EPC-1" style="position: absolute;top: -3px;" ${epc1}>
                       <label class="form-check-label" for="exampleCheck1">EPC 1</label>
                     </div>
                     <div class="form-check" style="padding-bottom: 10px;">
-                      <input type="checkbox" class="form-check-input" id="Area_EPC2" style="position: absolute;top: -3px;">
+                      <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC-2" value="EPC-2" style="position: absolute;top: -3px;" ${epc2}>
                       <label class="form-check-label" for="exampleCheck1">EPC 2</label>
                     </div>
                     <div class="form-check" style="padding-bottom: 10px;">
-                      <input type="checkbox" class="form-check-input" id="Area_EPC3" style="position: absolute;top: -3px;">
+                      <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC-3" value="EPC-3" style="position: absolute;top: -3px;" ${epc3}>
                       <label class="form-check-label" for="exampleCheck1">EPC 3</label>
                     </div>
                     <div class="form-check" style="padding-bottom: 10px;">
-                      <input type="checkbox" class="form-check-input" id="Area_EPC4" style="position: absolute;top: -3px;">
+                      <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC-4" value="EPC-4" style="position: absolute;top: -3px;" ${epc4}>
                       <label class="form-check-label" for="exampleCheck1">EPC 4</label>
                     </div>
                   </td>
@@ -398,6 +518,11 @@ function(
                       <option value="1" ${activo}>Activo</option>
                       <option value="-1" ${inactivo}>Inactivo</option>
                     </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2">
+                    <div id="alert-edit-profesional" class="alert alert-danger" role="alert" style="display:none;"></div>
                   </td>
                 </tr>
               </table>
@@ -508,6 +633,22 @@ function(
             if(response.featureSet.features.length > 0)
             {
               var estado = response.featureSet.features[0].attributes;
+              var statusGeneral = estado.Estatus_gral;
+              var checkPl, checkEt, checkAp, checkDm, checkDs;
+
+              if(statusGeneral === 'Planificada')
+              {
+                checkPl='checked';
+              }else if (statusGeneral === 'En trámite'){
+                checkEt='checked';
+              }else if (statusGeneral === 'Aprobada'){
+                checkAp='checked';
+              }else if (statusGeneral === 'Desmovilizada'){
+                checkDm='checked';
+              }else if (statusGeneral === 'Desistida'){
+                checkDs='checked';
+              }
+
               let content = `<div class="dijitDialogPaneContentArea">
               <table class="table table-hover table-sm">
                 <tr>
@@ -525,25 +666,30 @@ function(
                   <td><label for="loc">Status general: </label></td>
                   <td>
                     <div class="form-check" style="padding-bottom: 10px;">
-                    <input type="radio" class="form-check-input" name="gridRadios" id="Estatus_gral_Planificada" style="position: absolute;top: -3px;">
-                    <label class="form-check-label" for="exampleCheck1">Planificada</label>
+                      <input type="radio" class="form-check-input" name="gridRadios" value="Planificada" id="Estatus_gral_Planificada" style="position: absolute;top: -3px;" ${checkPl}>
+                      <label class="form-check-label" for="exampleCheck1">Planificada</label>
                     </div>
                     <div class="form-check" style="padding-bottom: 10px;">
-                    <input type="radio" class="form-check-input" name="gridRadios" id="Estatus_gral_Tramite" style="position: absolute;top: -3px;">
-                    <label class="form-check-label" for="exampleCheck1">En trámite</label>
+                      <input type="radio" class="form-check-input" name="gridRadios" value="En trámite" id="Estatus_gral_Tramite" style="position: absolute;top: -3px;" ${checkEt}>
+                      <label class="form-check-label" for="exampleCheck1">En trámite</label>
                     </div>
                     <div class="form-check" style="padding-bottom: 10px;">
-                    <input type="radio" class="form-check-input" name="gridRadios" id="Estatus_gral_Aprobada" style="position: absolute;top: -3px;">
-                    <label class="form-check-label" for="exampleCheck1">Aprobada</label>
+                      <input type="radio" class="form-check-input" name="gridRadios" value="Aprobada" id="Estatus_gral_Aprobada" style="position: absolute;top: -3px;" ${checkAp}>
+                      <label class="form-check-label" for="exampleCheck1">Aprobada</label>
                     </div>
                     <div class="form-check" style="padding-bottom: 10px;">
-                    <input type="radio" class="form-check-input" name="gridRadios" id="Estatus_gral_Desmovilizada" style="position: absolute;top: -3px;">
-                    <label class="form-check-label" for="exampleCheck1">Desmovilizada</label>
+                      <input type="radio" class="form-check-input" name="gridRadios" value="Desmovilizada" id="Estatus_gral_Desmovilizada" style="position: absolute;top: -3px;" ${checkDm}>
+                      <label class="form-check-label" for="exampleCheck1">Desmovilizada</label>
                     </div>
                     <div class="form-check" style="padding-bottom: 10px;">
-                    <input type="radio" class="form-check-input" name="gridRadios" id="Estatus_gral_Desistida" style="position: absolute;top: -3px;">
-                    <label class="form-check-label" for="exampleCheck1">Desistida</label>
+                      <input type="radio" class="form-check-input" name="gridRadios" value="Desistida" id="Estatus_gral_Desistida" style="position: absolute;top: -3px;" ${checkDs}>
+                      <label class="form-check-label" for="exampleCheck1">Desistida</label>
                     </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2">
+                    <div id="alert-edit-estado" class="alert alert-danger" role="alert" style="display:none;"></div>
                   </td>
                 </tr>
               </table>
@@ -676,7 +822,24 @@ function(
           </tr>
           <tr>
             <td><label for="desc">Area EPC: </label></td>
-            <td><input data-dojo-type="dijit/form/TextBox" type="text" name="Area_EPC" id="Area_EPC" style="width: 100%;" value=""></td>
+            <td>
+              <div class="form-check" style="padding-bottom: 10px;">
+                <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC-1" value="EPC-1" style="position: absolute;top: -3px;">
+                <label class="form-check-label" for="exampleCheck1">EPC 1</label>
+              </div>
+              <div class="form-check" style="padding-bottom: 10px;">
+                <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC-2" value="EPC-2" style="position: absolute;top: -3px;">
+                <label class="form-check-label" for="exampleCheck1">EPC 2</label>
+              </div>
+              <div class="form-check" style="padding-bottom: 10px;">
+                <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC-3" value="EPC-3" style="position: absolute;top: -3px;">
+                <label class="form-check-label" for="exampleCheck1">EPC 3</label>
+              </div>
+              <div class="form-check" style="padding-bottom: 10px;">
+                <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC-4" value="EPC-4" style="position: absolute;top: -3px;">
+                <label class="form-check-label" for="exampleCheck1">EPC 4</label>
+              </div>
+            </td>
           </tr>
           <tr>
             <td><label for="desc">ROL: </label></td>
@@ -697,6 +860,11 @@ function(
                 <option value="1">Activo</option>
                 <option value="-1">Inactivo</option>
               </select>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <div id="alert-crear-profesional" class="alert alert-danger" role="alert" style="display:none;"></div>
             </td>
           </tr>
         </table>
@@ -782,7 +950,33 @@ function(
           </tr>
           <tr>
             <td><label for="loc">Status general: </label></td>
-            <td><input data-dojo-type="dijit/form/TextBox" type="text" name="Estatus_gral" id="Estatus_gral" style="width: 100%;" value=""></td>
+            <td>
+              <div class="form-check" style="padding-bottom: 10px;">
+                <input type="radio" class="form-check-input" name="gridRadios" value="Planificada" id="Estatus_gral_Planificada" style="position: absolute;top: -3px;">
+                <label class="form-check-label" for="exampleCheck1">Planificada</label>
+              </div>
+              <div class="form-check" style="padding-bottom: 10px;">
+                <input type="radio" class="form-check-input" name="gridRadios" value="En trámite" id="Estatus_gral_Tramite" style="position: absolute;top: -3px;">
+                <label class="form-check-label" for="exampleCheck1">En trámite</label>
+              </div>
+              <div class="form-check" style="padding-bottom: 10px;">
+                <input type="radio" class="form-check-input" name="gridRadios" value="Aprobada" id="Estatus_gral_Aprobada" style="position: absolute;top: -3px;">
+                <label class="form-check-label" for="exampleCheck1">Aprobada</label>
+              </div>
+              <div class="form-check" style="padding-bottom: 10px;">
+                <input type="radio" class="form-check-input" name="gridRadios" value="Desmovilizada" id="Estatus_gral_Desmovilizada" style="position: absolute;top: -3px;">
+                <label class="form-check-label" for="exampleCheck1">Desmovilizada</label>
+              </div>
+              <div class="form-check" style="padding-bottom: 10px;">
+                <input type="radio" class="form-check-input" name="gridRadios" value="Desistida" id="Estatus_gral_Desistida" style="position: absolute;top: -3px;">
+                <label class="form-check-label" for="exampleCheck1">Desistida</label>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <div id="alert-crear-estado" class="alert alert-danger" role="alert" style="display:none;"></div>
+            </td>
           </tr>
         </table>
       </div>
