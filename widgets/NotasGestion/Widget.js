@@ -602,6 +602,7 @@ function(
         deferred.reject('Debe ingresar una nota de gestión')
       } else {
         attributesNota['Comentario'] = comentario
+        attributesSia['Dat_SIAs_Comentario'] = comentario;
       }
 
       //Valido que ingrese un profesional inco.

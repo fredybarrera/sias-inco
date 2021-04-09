@@ -1,5 +1,6 @@
 <div class="jimu-widget-editar-sias contenedor">
-  <div class="contenedor" data-dojo-attach-point="">
+    <div class="contenedor" data-dojo-attach-point="">
+    <div class="div-subtitulo">Profesionales que gestionan SIA</div><br>
     <table class="table table-hover table-sm">
       <tbody>
         <tr>
@@ -29,86 +30,67 @@
           </td>
         </tr>
         <tr>
-					<td>Profesional INCO</td>
-					<td>
-						<select class="form-control" style="margin-top: 5px;" name="" id="sel-profesional-inco-editar-sia"></select>
-					</td>
-				</tr>
-				<tr>
-					<td>Solicitante</td>
-					<td>
-						<select class="form-control" style="margin-top: 5px;" name="" id="sel-solicitante-inco-editar-sia"></select>
-					</td>
-				</tr>
-        <tr>
-					<td>ID SIA</td>
-					<td>
-            <input class="form-control" style="margin-top: 5px;" type="text" name="" id="input-editar-sia-Dat_SIAs_Id_Sistema" autocomplete="off">
-            <input class="form-control" style="margin-top: 5px;" type="hidden" name="" id="input-editar-sia-OBJECTID" autocomplete="off">
-          </td>
-				</tr>
-        <tr>
-					<td>EPC</td>
-          <td><select class="form-control" style="margin-top: 5px;" name="" id="sel-editar-sia-Dat_SIAs_SIA_EPC"></select></td>
-				</tr>
-        <!-- <tr>
-					<td>SIA_ID_LOCAL</td>
-					<td><input class="form-control" style="margin-top: 5px;" type="text" name="" id="input-editar-sia-Dat_SIAs_SIA_ID_LOCAL" autocomplete="off"></td>
-				</tr>
-        <tr>
-					<td>SIA_IDE_Etiq</td>
-					<td><input class="form-control" style="margin-top: 5px;" type="text" name="" id="input-editar-sia-Dat_SIAs_SIA_IDE_Etiq" autocomplete="off"></td>
-				</tr>
-        <tr>
-					<td>SIAIDGRAL2</td>
-					<td><input class="form-control" style="margin-top: 5px;" type="text" name="" id="input-editar-sia-Dat_SIAs_SIAIDGRAL2" autocomplete="off"></td>
-				</tr> -->
-        <tr>
-					<td>Area Solicitada</td>
-					<td><input class="form-control" style="margin-top: 5px;" type="text" name="" id="input-editar-sia-Dat_SIAs_Area_Solicitada" autocomplete="off"></td>
-				</tr>
-        <tr>
-					<td>Comentario</td>
-					<td><input class="form-control" style="margin-top: 5px;" type="text" name="" id="input-editar-sia-Dat_SIAs_Comentario" autocomplete="off"></td>
-				</tr>
-        <tr>
-					<td>SIA_Origen</td>
-					<td><input class="form-control" style="margin-top: 5px;" type="text" name="" id="input-editar-sia-Dat_SIAs_SIA_Origen" autocomplete="off"></td>
-				</tr>
-        <tr>
-					<td>SIAs_Areas_Area_m2</td>
-					<td><input class="form-control" style="margin-top: 5px;" type="text" name="" id="input-editar-sia-SIAs_Areas_Area_m2" autocomplete="off"></td>
-				</tr>
-
-        <tr>
-					<td>La SIA indica modificación de ingeniería de una OIA declarada en RCA</td>
+          <td>Profesional INCO</td>
           <td>
-            <div class="form-check" style="padding-bottom: 10px;">
-              <input type="checkbox" class="form-check-input" id="chk-editar-sia-Modifica_Ingenieria" style="position: absolute;top: -3px;">
-            </div>
+            <select class="form-control" style="margin-top: 5px;" name="" id="sel-profesional-inco-editar-sia"></select>
           </td>
-				</tr>
+        </tr>
         <tr>
-					<td>La SIA amplía el área declarada en RCA</td>
+          <td>Solicitante</td>
           <td>
-            <div class="form-check" style="padding-bottom: 10px;">
-              <input type="checkbox" class="form-check-input" id="chk-editar-sia-Modifica_Area_RCA" style="position: absolute;top: -3px;">
-            </div>
+            <select class="form-control" style="margin-top: 5px;" name="" id="sel-solicitante-inco-editar-sia"></select>
           </td>
-				</tr>
-        <tr>
-					<td>a SIA describe una OIA no declarada en RCA</td>
-          <td>
-            <div class="form-check" style="padding-bottom: 10px;">
-              <input type="checkbox" class="form-check-input" id="chk-editar-sia-OIA_no_descrita_RCA" style="position: absolute;top: -3px;">
-            </div>
-          </td>
-				</tr>
+        </tr>
       </tbody>
     </table>
   </div>
 
-
+  <div class="contenedor" data-dojo-attach-point="">
+    <div class="div-subtitulo">Caracterización General SIA</div><br>
+    <table class="table table-hover table-sm">
+      <tbody>
+        <tr>
+          <tr>
+            <td>EPC</td>
+            <td><select class="form-control" style="margin-top: 5px;" name="" id="sel-editar-sia-Dat_SIAs_SIA_EPC"></select></td>
+          </tr>
+          <td>ID SIA</td>
+          <td>
+            <input class="form-control" style="margin-top: 5px;" type="text" name="" id="input-editar-sia-Dat_SIAs_Id_Sistema" autocomplete="off" readonly="readonly">
+            <input class="form-control" style="margin-top: 5px;" type="hidden" name="" id="input-editar-sia-OBJECTID" autocomplete="off">
+          </td>
+        </tr>
+        <tr>
+          <td>Area Solicitada</td>
+          <td><input class="form-control" style="margin-top: 5px;" type="text" name="" id="input-editar-sia-Dat_SIAs_Area_Solicitada" autocomplete="off"></td>
+        </tr>
+  
+        <tr>
+          <td>SIA de origen</td>
+          <td>
+            <!-- <input class="form-control" style="margin-top: 5px;" type="text" name="" id="input-editar-sia-Dat_SIAs_SIA_Origen" autocomplete="off"> -->
+            <input class="form-control" id="input-editar-sia-Dat_SIAs_SIA_Origen" name="SIA de Origen"></input>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+   
+  <div class="contenedor" data-dojo-attach-point="">
+    <div class="div-subtitulo">Verificación de modificaciones a RCA INCO</div><br>
+    <div class="form-check" style="padding-bottom: 10px;">
+      <input type="checkbox" class="form-check-input" id="chk-editar-sia-Modifica_Ingenieria" style="position: absolute;top: -3px;">
+      <label class="form-check-label" for="exampleCheck1">La SIA indica modificación de ingeniería de una OIA declarada en RCA</label>
+    </div>
+    <div class="form-check" style="padding-bottom: 10px;">
+      <input type="checkbox" class="form-check-input" id="chk-editar-sia-Modifica_Area_RCA" style="position: absolute;top: -3px;">
+      <label class="form-check-label" for="exampleCheck2">La SIA amplía el área declarada en RCA</label>
+    </div>
+    <div class="form-check" style="padding-bottom: 10px;">
+      <input type="checkbox" class="form-check-input" id="chk-editar-sia-OIA_no_descrita_RCA" style="position: absolute;top: -3px;">
+      <label class="form-check-label" for="exampleCheck3">La SIA describe una OIA no declarada en RCA</label>
+    </div>
+  </div>
 
   <input type="button" class="btn-enviar btn btn-primary" value="Guardar" data-dojo-attach-event="onclick:_onclickGuardarEdicion">
 </div>

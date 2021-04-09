@@ -360,7 +360,24 @@ function(
                 </tr>
                 <tr>
                   <td><label for="desc">Area EPC: </label></td>
-                  <td><input data-dojo-type="dijit/form/TextBox" type="text" name="Area_EPC" id="Area_EPC" style="width: 100%;" value="${profesional.Area_EPC}"></td>
+                  <td>
+                    <div class="form-check" style="padding-bottom: 10px;">
+                      <input type="checkbox" class="form-check-input" id="Area_EPC1" style="position: absolute;top: -3px;">
+                      <label class="form-check-label" for="exampleCheck1">EPC 1</label>
+                    </div>
+                    <div class="form-check" style="padding-bottom: 10px;">
+                      <input type="checkbox" class="form-check-input" id="Area_EPC2" style="position: absolute;top: -3px;">
+                      <label class="form-check-label" for="exampleCheck1">EPC 2</label>
+                    </div>
+                    <div class="form-check" style="padding-bottom: 10px;">
+                      <input type="checkbox" class="form-check-input" id="Area_EPC3" style="position: absolute;top: -3px;">
+                      <label class="form-check-label" for="exampleCheck1">EPC 3</label>
+                    </div>
+                    <div class="form-check" style="padding-bottom: 10px;">
+                      <input type="checkbox" class="form-check-input" id="Area_EPC4" style="position: absolute;top: -3px;">
+                      <label class="form-check-label" for="exampleCheck1">EPC 4</label>
+                    </div>
+                  </td>
                 </tr>
                 <tr>
                   <td><label for="desc">ROL: </label></td>
@@ -506,7 +523,28 @@ function(
                 </tr>
                 <tr>
                   <td><label for="loc">Status general: </label></td>
-                  <td><input data-dojo-type="dijit/form/TextBox" type="text" name="Estatus_gral" id="Estatus_gral" style="width: 100%;" value="${estado.Estatus_gral}"></td>
+                  <td>
+                    <div class="form-check" style="padding-bottom: 10px;">
+                    <input type="radio" class="form-check-input" name="gridRadios" id="Estatus_gral_Planificada" style="position: absolute;top: -3px;">
+                    <label class="form-check-label" for="exampleCheck1">Planificada</label>
+                    </div>
+                    <div class="form-check" style="padding-bottom: 10px;">
+                    <input type="radio" class="form-check-input" name="gridRadios" id="Estatus_gral_Tramite" style="position: absolute;top: -3px;">
+                    <label class="form-check-label" for="exampleCheck1">En trámite</label>
+                    </div>
+                    <div class="form-check" style="padding-bottom: 10px;">
+                    <input type="radio" class="form-check-input" name="gridRadios" id="Estatus_gral_Aprobada" style="position: absolute;top: -3px;">
+                    <label class="form-check-label" for="exampleCheck1">Aprobada</label>
+                    </div>
+                    <div class="form-check" style="padding-bottom: 10px;">
+                    <input type="radio" class="form-check-input" name="gridRadios" id="Estatus_gral_Desmovilizada" style="position: absolute;top: -3px;">
+                    <label class="form-check-label" for="exampleCheck1">Desmovilizada</label>
+                    </div>
+                    <div class="form-check" style="padding-bottom: 10px;">
+                    <input type="radio" class="form-check-input" name="gridRadios" id="Estatus_gral_Desistida" style="position: absolute;top: -3px;">
+                    <label class="form-check-label" for="exampleCheck1">Desistida</label>
+                    </div>
+                  </td>
                 </tr>
               </table>
             </div>

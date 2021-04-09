@@ -19,6 +19,7 @@ var VerGestion, featureLayerSias;
 var geometriesKml = {};
 var config;
 var statusGeneralSia, statusEspecificoSia;
+var geometryService;
 define([
   "dojo/_base/declare", 
   "dojo/dom",
@@ -88,13 +89,15 @@ function(
   return declare(BaseWidget, {
     name: 'Ingresar nueva SIA',
     sias: null,
-    geometryService: null,
     baseClass: 'jimu-widget-sias',
     startup: function(){
       var map = this.map;
       config = this.appConfig.Sias;
       statusGeneralSia = this.appConfig.statusGeneralSia;
       statusEspecificoSia = this.appConfig.statusEspecificoSia;
+
+      geometryService = new GeometryService("https://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/Geometry/GeometryServer");
+      // geometryService.on("areas-and-lengths-complete", this.outputAreaAndLength);
 
       //Obtengo el token del usuario logueado de portal
       this.getUserTokenPortal();
@@ -152,6 +155,12 @@ function(
       editToolbar.on("vertex-move-stop", lang.hitch(this, function(evt) {
 				// this.despliegaAreaPerimetro(evt.graphic.geometry);
 			}));
+    },
+
+    outputAreaAndLength: function (evtObj) {
+      var result = evtObj.result;
+      console.log('result: ', result);
+      return result;
     },
 
     getUserTokenPortal: function () {
@@ -331,6 +340,7 @@ function(
     _onclickEnviar: function () {
       this.getData().then(
         lang.hitch(this, function(data) {
+          console.log('data: ', data);
           let geom = data.attr_sia['geometry'];
           var polygon = new Polygon(geom);
           this.validaIdSia().then(
@@ -385,6 +395,21 @@ function(
       );
     },
 
+    calculateArea: function (geometry) {
+      var deferred = new Deferred();
+      //setup the parameters for the areas and lengths operation
+      var areasAndLengthParams = new AreasAndLengthsParameters();
+      areasAndLengthParams.lengthUnit = GeometryService.UNIT_KILOMETER;
+      areasAndLengthParams.areaUnit = GeometryService.UNIT_SQUARE_METERS;
+      areasAndLengthParams.calculationType = "geodesic";
+      geometryService.simplify([geometry], function(simplifiedGeometries) {
+        areasAndLengthParams.polygons = simplifiedGeometries;
+        geometryService.areasAndLengths(areasAndLengthParams);
+        deferred.resolve(geometryService);
+      });
+      return deferred.promise;
+    },
+
     getData: function () {
       var deferred = new Deferred();
       var data = {};
@@ -399,6 +424,20 @@ function(
       if(geometriesKml.hasOwnProperty('rings'))
       {
         dataSIa['geometry'] = geometriesKml.toJson();
+
+        this.calculateArea(geometriesKml).then(
+          lang.hitch(this, function(resp) {
+            resp.on("areas-and-lengths-complete", function(evtObj){
+              console.log('dataaaaas ddddd complete: ', evtObj);
+              attributes['SIAs_Areas_Area_m2'] = parseInt(evtObj.result.areas[0].toFixed());
+            });
+          }),
+          lang.hitch(this, function(strError) {
+            console.log('request failed', strError);
+            this.showMessage(strError, 'error')
+          })
+        );
+
       }else{
         // Valido que exista al menos una geometría dibujada en el mapa.
         var geom = [];
@@ -413,6 +452,19 @@ function(
           }, this);
           var union = geometryEngine.union(geom);
           dataSIa['geometry'] = union.toJson();
+
+          this.calculateArea(union).then(
+            lang.hitch(this, function(resp) {
+              resp.on("areas-and-lengths-complete", function(evtObj){
+                console.log('dataaaaas ddddd complete: ', evtObj);
+                attributes['SIAs_Areas_Area_m2'] = parseInt(evtObj.result.areas[0].toFixed());
+              });
+            }),
+            lang.hitch(this, function(strError) {
+              console.log('request failed', strError);
+              this.showMessage(strError, 'error')
+            })
+          );
         }
       }
 
@@ -464,12 +516,21 @@ function(
       {
         deferred.reject('Debe ingresar un ID SIA')
       } else {
-        id_sia_general = epc + '- ' + idSia;
-        sia_etiqueta = idSia.replace("SIA", "");
-        attributes['Dat_SIAs_SIA_ID_LOCAL'] = idSia;
-        attributes['Dat_SIAs_SIAIDGRAL2'] = id_sia_general;
-        attributes['SIAs_Areas_SIA_ID_Gral'] = id_sia_general;
-        attributes['Dat_SIAs_SIA_IDE_Etiq'] = sia_etiqueta.trim();
+
+        console.log('idSia: ', idSia);
+        
+        sia_numero = idSia.replace("SIA", "");
+        sia_numero = sia_numero.replace("sia", "");
+        sia_numero = sia_numero.replace(" ", "");
+        id_sia_general = epc + '- SIA ' + sia_numero;
+        
+        console.log('sia_numero: ', sia_numero);
+        console.log('id_sia_general: ', id_sia_general);
+
+        attributes['Dat_SIAs_SIA_ID_LOCAL'] = idSia; // el texto de la sia tal cual como viene -> Ok.
+        attributes['Dat_SIAs_SIAIDGRAL2'] = id_sia_general; // id de la sia concatenando epc - sia - numero -> Ok.
+        attributes['SIAs_Areas_SIA_ID_Gral'] = id_sia_general; // id de la sia concatenando epc - sia - numero -> Ok.
+        attributes['Dat_SIAs_SIA_IDE_Etiq'] = sia_numero.trim(); // solo el numero menos el texto y el espacio -> Ok.
       }
 
       //Valido que ingrese un area solicitada
@@ -532,9 +593,11 @@ function(
       
       var comentario = $('#txta-sia-gestion-comentario').val();
       attributesGestion['Comentario'] = comentario;
+      attributes['Dat_SIAs_Comentario'] = comentario;
+
       attributesGestion['SIAIDGRAL2'] = id_sia_general;
-      attributesGestion['Fecha_Nota'] = datetime;
-      attributesGestion['Nombre_apellido'] = $('#sel-sia-profesional-inco option:selected').text();
+      attributesGestion['Fecha_Nota'] = new Date().getTime();
+      attributesGestion['Nombre_apellido'] = profesional_inco;
       attributesGestion['SIA_ID_LOCAL'] = idSia;
       attributesGestion['SIA_IDE_Etiq'] = sia_etiqueta.trim();
 
@@ -567,7 +630,10 @@ function(
       var deferred = new Deferred();
       var idSia = $('#txt-sia-id-sia').val().toUpperCase();
       var epc = $('#sel-sia-epc option:selected').val()
-      id_sia_general = epc + '- ' + idSia;
+      sia_numero = idSia.replace("SIA", "");
+      sia_numero = sia_numero.replace("sia", "");
+      sia_numero = sia_numero.replace(" ", "");
+      id_sia_general = epc + '- SIA ' + sia_numero;
       console.log('id_sia_general: ', id_sia_general);
 
       //Valido que el id de la sia no exista previamente en la capa.

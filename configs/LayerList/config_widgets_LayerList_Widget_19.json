@@ -6,21 +6,21 @@
   "contextMenu": {
     "ZoomTo": true,
     "Transparency": true,
-    "SetVisibilityRange": false,
+    "SetVisibilityRange": true,
     "EnableOrDisablePopup": false,
-    "ControlLabels": false,
-    "MoveupOrMovedown": false,
-    "OpenAttributeTable": false,
+    "ControlLabels": true,
+    "MoveupOrMovedown": true,
+    "OpenAttributeTable": true,
     "DescriptionOrShowItemDetailsOrDownload": false
   },
   "layerOptions": {
-    "INCO_SIAS_WGS84_2639_5891": {
+    "INCO_SIAS_WGS84_6909": {
       "display": true
     },
-    "INCO_AmAp_5086": {
+    "INCO_ApAm_5650": {
       "display": true
     },
-    "INCO_SIAS_WGS84_2639_5891_9544": {
+    "INCO_SIAS_WGS84_5038": {
       "display": true
     }
   }

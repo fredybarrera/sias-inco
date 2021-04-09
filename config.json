@@ -291,7 +291,8 @@
         "version": "2.16",
         "id": "widgets_LayerList_Widget_19",
         "name": "LayerList",
-        "index": 3
+        "index": 3,
+        "config": "configs/LayerList/config_widgets_LayerList_Widget_19.json"
       },
       {
         "name": "BasemapGallery",

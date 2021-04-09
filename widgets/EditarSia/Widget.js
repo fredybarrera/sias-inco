@@ -101,6 +101,9 @@ function(
       // Obtengo los solicitantes inco
       this.loadSolicitantesInco();
 
+      //Obtengo las sias de origen
+      this.loadSiasOrigen();
+
       $('[data-toggle="popover"]').popover({
         html : true,
         container: 'body'
@@ -131,6 +134,41 @@ function(
         userPortal = portal.user;
         userToken = userPortal.credential.token;
       }
+    },
+
+    loadSiasOrigen: function () {
+      // Create ArcGISServerStore
+      var agsStore = new ArcGISServerStore({
+        url: config.urlBase + config.urlKeySias,
+        flatten: true,
+        returnGeometry: false,
+        outFields: ['*']
+      });
+
+      // Cache store - Prevents extra queries for repeat "get" calls
+      var memoryStore = new Memory();
+      var store = new Cache(agsStore, memoryStore);
+
+      // Build the FilteringSelect
+      var fs = new FilteringSelect({
+        store: agsStore,
+        name: 'sias',
+        searchAttr: 'Dat_SIAs_SIAIDGRAL2',
+        placeholder: 'Buscar SIA origen',
+        label: 'el Label',
+        style: "display: block;width: 100%;height: calc(1.5em + .75rem + 2px);padding: .375rem .75rem;font-size: 1rem;font-weight: 400;line-height: 1.5;color: #495057;background-color: #fff;background-clip: padding-box;border: 1px solid #ced4da;border-radius: .25rem;transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;margin-top: 5px;",
+        required: false,
+        hasDownArrow: true,
+        pageSize: 15,
+        autoComplete: true,
+      }, document.getElementById('input-editar-sia-Dat_SIAs_SIA_Origen'));
+
+
+      fs.on('change', function (newValue) {
+        when(store.get(newValue)).then(function (sia) {
+          console.log('sia :', sia);
+        });
+      });
     },
 
     loadEpc: function () {
@@ -234,7 +272,7 @@ function(
             var options = {  dateStyle: 'medium' };
             var datetime = d.toLocaleString("es-CL", options);
 
-            $("#input-editar-sia-Dat_SIAs_Id_Sistema").val(data.Dat_SIAs_Id_Sistema);
+            $("#input-editar-sia-Dat_SIAs_Id_Sistema").val(data.SIAs_Areas_SIA_ID_Gral);
             $("#sel-editar-sia-Dat_SIAs_SIA_EPC").val(data.Dat_SIAs_SIA_EPC);
             $("#input-editar-sia-Dat_SIAs_SIA_ID_LOCAL").val(data.Dat_SIAs_SIA_ID_LOCAL);
             $("#input-editar-sia-Dat_SIAs_SIA_IDE_Etiq").val(data.Dat_SIAs_SIA_IDE_Etiq);
@@ -449,14 +487,6 @@ function(
         attributes['Dat_SIAs_Id_Sistema'] = null;
       }
 
-      var SIAs_Areas_Area_m2 = $("#input-editar-sia-SIAs_Areas_Area_m2").val();
-      if(SIAs_Areas_Area_m2 !== '')
-      {
-        attributes['SIAs_Areas_Area_m2'] = parseInt(SIAs_Areas_Area_m2);
-      }else{
-        attributes['SIAs_Areas_Area_m2'] = null;
-      }
-
       var Dat_SIAs_Area_Solicitada = $("#input-editar-sia-Dat_SIAs_Area_Solicitada").val();
       if(Dat_SIAs_Area_Solicitada !== '')
       {
@@ -465,11 +495,20 @@ function(
         deferred.reject('Debe ingresar una área solicitada');
       }
 
-      attributes['Dat_SIAs_SIA_ID_LOCAL'] = $("#input-editar-sia-Dat_SIAs_SIA_ID_LOCAL").val();
-      attributes['Dat_SIAs_SIA_IDE_Etiq'] = $("#input-editar-sia-Dat_SIAs_SIA_IDE_Etiq").val();
-      attributes['Dat_SIAs_SIAIDGRAL2'] = $("#input-editar-sia-Dat_SIAs_SIAIDGRAL2").val();
-      attributes['Dat_SIAs_Comentario'] = $("#input-editar-sia-Dat_SIAs_Comentario").val();
-      attributes['Dat_SIAs_SIA_Origen'] = $("#input-editar-sia-Dat_SIAs_SIA_Origen").val();
+      //Valido que se selccione una sia de origen
+      var sia_origen = $('#input-editar-sia-Dat_SIAs_SIA_Origen').val()
+      if (sia_origen == '-1' || sia_origen == '')
+      {
+        deferred.reject('Debe seleccionar una sia de origen');
+      } else {
+        attributes['Dat_SIAs_SIA_Origen'] = sia_origen
+      }
+
+      // attributes['Dat_SIAs_SIA_ID_LOCAL'] = $("#input-editar-sia-Dat_SIAs_SIA_ID_LOCAL").val();
+      // attributes['Dat_SIAs_SIA_IDE_Etiq'] = $("#input-editar-sia-Dat_SIAs_SIA_IDE_Etiq").val();
+      // attributes['Dat_SIAs_SIAIDGRAL2'] = $("#input-editar-sia-Dat_SIAs_SIAIDGRAL2").val();
+      // attributes['Dat_SIAs_Comentario'] = $("#input-editar-sia-Dat_SIAs_Comentario").val();
+      // attributes['Dat_SIAs_SIA_Origen'] = $("#input-editar-sia-Dat_SIAs_SIA_Origen").val();
       attributes['OBJECTID'] = parseInt($("#input-editar-sia-OBJECTID").val());
   
       // “Modifica_Ingenieria”, “Modifica_Area_RCA” y “Describe_Cambio_RCA”.
