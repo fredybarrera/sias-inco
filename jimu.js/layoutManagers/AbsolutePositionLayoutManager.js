@@ -13,7 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////////
-
+var VerGestion;
+var global_id_sia_general = null;
 define([
   'dojo/_base/declare',
   'dojo/_base/lang',
@@ -28,11 +29,12 @@ define([
   '../PanelManager',
   '../utils',
   '../dijit/LoadingShelter',
-  './BaseLayoutManager'
+  './BaseLayoutManager',
+  'esri/InfoTemplate'
 ],
 
 function(declare, lang, array, html, topic, domConstruct, domGeometry,
-  all, when, WidgetManager, PanelManager, utils, LoadingShelter, BaseLayoutManager) {
+  all, when, WidgetManager, PanelManager, utils, LoadingShelter, BaseLayoutManager, InfoTemplate) {
   /* global jimuConfig:true */
   var instance = null, clazz;
 
@@ -84,7 +86,7 @@ function(declare, lang, array, html, topic, domConstruct, domGeometry,
     },
 
     loadAndLayout: function(appConfig){
-      console.time('Load widgetOnScreen');
+      console.time('Load widgetOnScreen acaa');
       this.setMapPosition(appConfig.map.position);
 
       var loading = new LoadingShelter(), defs = [];
@@ -107,17 +109,71 @@ function(declare, lang, array, html, topic, domConstruct, domGeometry,
           loading.destroy();
           loading = null;
         }
-        console.timeEnd('Load widgetOnScreen');
+        console.timeEnd('Load widgetOnScreen sss');
         topic.publish('preloadWidgetsLoaded');
+        console.log('map: ', this.map);
+        var gLayer = this.map.getLayer('INCO_SIAS_WGS84_5038');
+        VerGestion = this._onclickVerGestion;
+        var htmlInfoTemplate = this.getHtmlInfotemplate();
+        var infoTemplate = new InfoTemplate("SIA", htmlInfoTemplate);  
+        gLayer.setInfoTemplate(infoTemplate);
+        console.log('gLayer: ', gLayer);
+        // "INCO_SIAS_WGS84_5038"
       }), lang.hitch(this, function(){
         if(loading){
           loading.destroy();
           loading = null;
         }
         //if error when load widget, let the others continue
-        console.timeEnd('Load widgetOnScreen');
+        console.timeEnd('Load widgetOnScreen www');
         topic.publish('preloadWidgetsLoaded');
       }));
+    },
+
+    getHtmlInfotemplate: function () {
+      let html_infotemplate = "";
+      html_infotemplate += "<table class='table table-sm'>";
+      html_infotemplate += "<tbody><tr><td>ID SIA General:</td><td>${SIAs_Areas_SIA_ID_Gral}</td></tr>";
+      html_infotemplate += "<tr><td>EPC:</td><td>${Dat_SIAs_SIA_EPC}</td></tr>";
+      html_infotemplate += "<tr><td>Area solicitada:</td><td>${Dat_SIAs_Area_Solicitada}</td></tr>";
+      html_infotemplate += "<tr><td>Fecha solicitud:</td><td>${Dat_SIAs_Fecha_Solicitud}</td></tr>";
+      html_infotemplate += "<tr><td>Estado gestión:</td><td>${Dat_SIAs_Estados_Gestion}</td></tr>";
+      html_infotemplate += "<tr><td>Comentario:</td><td>${Dat_SIAs_Comentario}</td></tr>";
+      html_infotemplate += "<tr><td>SIA Origen:</td><td>${Dat_SIAs_SIA_Origen}</td></tr>";
+      html_infotemplate += "<tr><td colspan='2'>";
+      html_infotemplate += "<input type='button' id='botonVerGestion' class='btn btn-primary btn-sm' value='Ver gestión' onclick='VerGestion("+'"'+"${SIAs_Areas_SIA_ID_Gral}|${OBJECTID}"+'"'+");'>";
+      html_infotemplate += "</td></tr></tbody></table>";
+      return html_infotemplate;
+    },
+
+    _onclickVerGestion: function (data) {
+      var aux = data.split("|");
+      global_id_sia_general = aux[0];
+      console.log('_onclickVerGestion global_id_sia_general: ', global_id_sia_general);
+      $("#dijit__WidgetBase_1").click();
+      // var panelIsVisible = $("#_35_panel").is(":visible");
+      // console.log('_onclickVerGestion panelIsVisible: ', panelIsVisible);
+
+      // if(panelIsVisible)
+      // {
+      //   $("#sel-nota-gestion-sia").val(id_sia_general)
+      //   $("#sel-nota-gestion-sia").change();
+      // }else{
+      //   $("#dijit__WidgetBase_1").click();
+      //   const timeValue = setInterval((interval) => {
+      //     console.log('acaaa');
+      //     console.log($("#_35_panel").is(":visible"));
+      //     if($("#_35_panel").is(":visible"))
+      //     {
+      //       $("#sel-nota-gestion-sia").val(id_sia_general)
+      //       $("#sel-nota-gestion-sia").change();
+      //       clearInterval(timeValue);
+      //     }
+      //   }, 1000); //Cada medio segundos
+      // }
+
+      // $(".esriPopup").removeClass("esriPopupVisible").addClass("esriPopupHidden");
+      // $(".esriPopup").css({ 'z-index': -40 });
     },
 
     destroyOnScreenWidgetsAndGroups: function(){

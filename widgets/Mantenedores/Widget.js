@@ -437,19 +437,19 @@ function(
               var arrArea_EPC = Area_EPC.split(", ");
               var epc1, epc2, epc3, epc4;
               arrayUtils.forEach(arrArea_EPC, function(f) {
-                if(f==='EPC-1')
+                if(f==='EPC 1')
                 {
                   epc1 = 'checked';
                 }
-                if(f==='EPC-2')
+                if(f==='EPC 2')
                 {
                   epc2 = 'checked';
                 }
-                if(f==='EPC-3')
+                if(f==='EPC 3')
                 {
                   epc3 = 'checked';
                 }
-                if(f==='EPC-4')
+                if(f==='EPC 4')
                 {
                   epc4 = 'checked';
                 }
@@ -482,19 +482,19 @@ function(
                   <td><label for="desc">Area EPC: </label></td>
                   <td>
                     <div class="form-check" style="padding-bottom: 10px;">
-                      <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC-1" value="EPC-1" style="position: absolute;top: -3px;" ${epc1}>
+                      <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC 1" value="EPC 1" style="position: absolute;top: -3px;" ${epc1}>
                       <label class="form-check-label" for="exampleCheck1">EPC 1</label>
                     </div>
                     <div class="form-check" style="padding-bottom: 10px;">
-                      <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC-2" value="EPC-2" style="position: absolute;top: -3px;" ${epc2}>
+                      <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC 2" value="EPC 2" style="position: absolute;top: -3px;" ${epc2}>
                       <label class="form-check-label" for="exampleCheck1">EPC 2</label>
                     </div>
                     <div class="form-check" style="padding-bottom: 10px;">
-                      <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC-3" value="EPC-3" style="position: absolute;top: -3px;" ${epc3}>
+                      <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC 3" value="EPC 3" style="position: absolute;top: -3px;" ${epc3}>
                       <label class="form-check-label" for="exampleCheck1">EPC 3</label>
                     </div>
                     <div class="form-check" style="padding-bottom: 10px;">
-                      <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC-4" value="EPC-4" style="position: absolute;top: -3px;" ${epc4}>
+                      <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC 4" value="EPC 4" style="position: absolute;top: -3px;" ${epc4}>
                       <label class="form-check-label" for="exampleCheck1">EPC 4</label>
                     </div>
                   </td>
@@ -824,19 +824,19 @@ function(
             <td><label for="desc">Area EPC: </label></td>
             <td>
               <div class="form-check" style="padding-bottom: 10px;">
-                <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC-1" value="EPC-1" style="position: absolute;top: -3px;">
+                <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC 1" value="EPC 1" style="position: absolute;top: -3px;">
                 <label class="form-check-label" for="exampleCheck1">EPC 1</label>
               </div>
               <div class="form-check" style="padding-bottom: 10px;">
-                <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC-2" value="EPC-2" style="position: absolute;top: -3px;">
+                <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC 2" value="EPC 2" style="position: absolute;top: -3px;">
                 <label class="form-check-label" for="exampleCheck1">EPC 2</label>
               </div>
               <div class="form-check" style="padding-bottom: 10px;">
-                <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC-3" value="EPC-3" style="position: absolute;top: -3px;">
+                <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC 3" value="EPC 3" style="position: absolute;top: -3px;">
                 <label class="form-check-label" for="exampleCheck1">EPC 3</label>
               </div>
               <div class="form-check" style="padding-bottom: 10px;">
-                <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC-4" value="EPC-4" style="position: absolute;top: -3px;">
+                <input type="checkbox" class="form-check-input" name="checkBoxProfesional" id="EPC 4" value="EPC 4" style="position: absolute;top: -3px;">
                 <label class="form-check-label" for="exampleCheck1">EPC 4</label>
               </div>
             </td>

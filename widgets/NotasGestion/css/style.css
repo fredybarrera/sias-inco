@@ -1,6 +1,7 @@
 div#_35_panel.jimu-panel.jimu-on-screen-widget-panel.jimu-main-background {
 	width: 700px !important;
     height: 500px !important;
+    z-index: 108 !important;
 }
 
 .div-subtitulo {

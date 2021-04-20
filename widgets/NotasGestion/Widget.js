@@ -530,7 +530,8 @@ function(
             let datetime_desmo = new Date(fecha_desmo).getTime();
             let datetime_inter = new Date(fecha_inter).getTime();
 
-            if(datetime_now > datetime_desmo || datetime_now > datetime_inter)
+            // if(datetime_now > datetime_desmo || datetime_now > datetime_inter)
+            if(false)
             {
               deferred.reject('La fecha intervención y/o desmovilización no puede ser menor a hoy.');
             }else{
@@ -749,13 +750,59 @@ function(
 
     postCreate: function () {
       this.inherited(arguments);
-      console.log('postCreate');
+      console.log('postCreate widget notas de gestion');
+      console.log('post global_id_sia_general: ', global_id_sia_general);
     },
 
     onOpen: function () {
-      console.log('onOpen');
-      if (typeof featureLayerSias !== 'undefined') {
-        console.log('featureLayerSias: ', featureLayerSias);
+      console.log('onOpen widget notas de gestion');
+      console.log('open global_id_sia_general: ', global_id_sia_general);
+      if(global_id_sia_general)
+      {
+        $("#sel-nota-gestion-sia").val(global_id_sia_general);
+
+        var url = config.urlBase + config.urlKeySias;
+        var query = new Query();
+        query.outFields = ["*"];
+        query.where = 'SIAs_Areas_SIA_ID_Gral=\'' + global_id_sia_general + '\'';
+        query.returnGeometry = false;
+        getRequest(url, query).then(
+          lang.hitch(this, function(response) { 
+            if(response.featureSet.features.length > 0)
+            {
+              console.log('response siaaaa: ', response);
+              var data = response.featureSet.features[0].attributes
+              var d = new Date(data.Fecha_Nota)
+              var options = {  dateStyle: 'medium' };
+              var datetime = d.toLocaleString("es-CL", options);
+
+              $("#detalle-sia-historial-fecha-gestion").text('');
+              $("#detalle-sia-historial-estado-gestion").text('');
+              $("#detalle-sia-historial-detalle-gestion").text('');
+              $('#div-notas-registradas').html('');
+
+              // Obtengo el historial de nostas de gestión de la SIA.
+              getHistorialSia(global_id_sia_general);
+                        
+              //Obtengo la ultima gestion de la sia
+              getUltimaGestion(global_id_sia_general);
+
+              $("#nota-gestion-detalle-id-sia").val(data.Dat_SIAs_SIA_ID_LOCAL);
+              $("#nota-gestion-detalle-SIA_IDE_Etiq").val(data.Dat_SIAs_SIA_IDE_Etiq);
+              $("#nota-gestion-detalle-Dat_SIAs_Fecha_Solicitud").val(data.Dat_SIAs_Fecha_Solicitud);
+              $("#nota-gestion-detalle-fecha-solicitud").val(datetime);
+              $("#nota-gestion-detalle-texto").val(data.Dat_SIAs_Area_Solicitada);
+              $("#nota-gestion-detalle-registrada").val(data.Resgistrado_por);
+              $("#nota-gestion-detalle-solicitada").val(data.ID_Solicitante);
+              $("#nota-gestion-m2").val(data.SIAs_Areas_Area_m2);
+              $("#nota-gestion-id-sia-gral").val(data.SIAs_Areas_SIA_ID_Gral);
+              $("#nota-gestion-detalle-objectid").val(data.OBJECTID);
+            }
+          }),
+          function(objErr) {
+            console.log('request failed', objErr)
+          }
+        );
       }
     },
 
@@ -764,6 +811,7 @@ function(
       var gLayer = this.map.getLayer("gLayerGraphicNotas");
 			gLayer.clear();
       this.resetForm();
+      global_id_sia_general = null;
     },
 
     onMinimize: function () {

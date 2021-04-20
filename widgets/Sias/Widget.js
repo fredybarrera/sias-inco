@@ -15,7 +15,7 @@
 ///////////////////////////////////////////////////////////////////////////
 var userToken = null;
 var userPortal = null;
-var VerGestion, featureLayerSias;
+var featureLayerSias;
 var geometriesKml = {};
 var config;
 var statusGeneralSia, statusEspecificoSia;
@@ -115,7 +115,7 @@ function(
       this.loadEstadosGestion();
 
       //Cargo la capa de SIAS en el mapa.
-      this.loadLayerSias();
+      // this.loadLayerSias();
 
       //Layer para los polígonos de una nueva sia, dibujados desde el widget.
       var gLayer = new GraphicsLayer({'id': 'gLayerGraphic'});
@@ -174,6 +174,21 @@ function(
     },
 
     loadLayerSias: function () {
+
+      for(layerName in this.map._layers)
+      {
+        // if (layerName === layerNameDownload)
+        // {
+          gLayerPam = this.map._layers[layerName];
+          console.log('gLayerPam: ', gLayerPam);
+          // gLayerPam.setSelectionSymbol(fieldsSelectionSymbol);
+          // gLayerPam.on("selection-complete", function (e) {
+          //   selectedFeatures = e.features.map((feature) => feature.attributes);
+          //   $("#txt-selected").text(e.features.length + ' Entidades seleccionadas.');
+          // });
+        // } 
+      }
+
       var htmlInfoTemplate = this.getHtmlInfotemplate();
       VerGestion = this._onclickVerGestion;
       var infoTemplate = new InfoTemplate("SIA", htmlInfoTemplate);  
@@ -310,7 +325,6 @@ function(
     _onclickVerGestion: function (data) {
       var aux = data.split("|");
       var id_sia_general = aux[0];
-      id_sia_general;
       console.log('_onclickVerGestion id_sia_general: ', id_sia_general);
       var panelIsVisible = $("#_35_panel").is(":visible");
       console.log('_onclickVerGestion panelIsVisible: ', panelIsVisible);

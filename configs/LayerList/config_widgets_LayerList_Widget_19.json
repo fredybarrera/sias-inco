@@ -7,7 +7,7 @@
     "ZoomTo": true,
     "Transparency": true,
     "SetVisibilityRange": true,
-    "EnableOrDisablePopup": false,
+    "EnableOrDisablePopup": true,
     "ControlLabels": true,
     "MoveupOrMovedown": true,
     "OpenAttributeTable": true,
